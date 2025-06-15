@@ -17,7 +17,11 @@ Differences -
 9. A second pass of volume equalisation is performed on the predicted, final EQ'd speaker responses. However, I haven't gotten around to fixing the printed message, because in the 2nd pass, there's no "filter hack" equalisation
 10. Definitely bump down your subs volume by around -3dB in the AVR menu after transfer. I haven't gotten around to fixing this yet.
 11. ----IMPORTANT----
-12. The tunable parameter weights are in alignFronts() and optimizeSubs(). Play with them. 
+12. The tunable parameter weights are in alignFronts() and optimizeSubs(). Play with them.
+
+** A1Evo_Alt.html **
+
+This particular version filters FL/FR starting at 16Hz as in OCA's original, but creates the filters for the rest of the speakers starting at customCrossover. Then in generateRoll(), FL and FR are not rolled at their custom crossover, but at 16Hz. This allows you to post-hoc set Fronts to "Full Range" in the AVR Menu, Subwoofer to LFE+Main, and Bass Extraction Freq to the crossover assigned for your Fronts. The integration is seamless and the bass is full. 
 
 This is purely a hobby thing, and so this will remain independent from the main fork, and not be updated regularly.
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
