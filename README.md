@@ -13,7 +13,8 @@ Differences -
 5. The same optimisations are also applied for the sub-L/R integration
 6. During these alignments, fMax is reduced to 150 instead of 250 Hz. This specifically assumes reference grade subwoofers.
 7. And therefore, all crossovers are capped at 120Hz to avoid bass localisation. This of course assumes atleast bookshelf sized speakers.
-8. A second pass of volume equalisation is performed on the predicted, final EQ'd speaker responses. However, I haven't gotten around to fixing the printed message, because in the 2nd pass, there's no "filter hack" equalisation
+8. The inverse room response filter now starts a bit before the computed optimal crossover-frequency for that speaker (pair). This avoids double-dipping below the Xover.
+9. A second pass of volume equalisation is performed on the predicted, final EQ'd speaker responses. However, I haven't gotten around to fixing the printed message, because in the 2nd pass, there's no "filter hack" equalisation
 10. Definitely bump down your subs volume by around -3dB in the AVR menu after transfer. I haven't gotten around to fixing this yet.
 11. ----IMPORTANT----
 12. The tunable parameter weights are in alignFronts() and optimizeSubs(). Play with them. 
