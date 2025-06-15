@@ -1,8 +1,8 @@
 # OCA's A1 Evo Acoustica
 
-This edit is specifically for multi-sub configurations. 
+### This edit is specifically for multi-sub configurations. 
 
-** IF YOU DON'T LIKE THE RESULTS AFTER THE FIRST PASS, LOAD THE PRE-PROCESSED MEASUREMENTS, IN ALL SPL WINDOW, APPLY NO MORE THAN 1/24th SMOOTHING, SAVE, AND RELOAD IT AND RE-RUN THE OPTIMISATION. I'VE FOUND THAT THIS EQUALISES THE VOLUMES MUCH BETTER **
+#### IF YOU DON'T LIKE THE RESULTS AFTER THE FIRST PASS, LOAD THE PRE-PROCESSED MEASUREMENTS, IN ALL SPL WINDOW, APPLY NO MORE THAN 1/24th SMOOTHING, SAVE, AND RELOAD IT AND RE-RUN THE OPTIMISATION. I'VE FOUND THAT THIS EQUALISES THE VOLUMES MUCH BETTER
 
 Differences - 
 
@@ -16,14 +16,14 @@ Differences -
 8. The inverse room response filter now starts a bit before the computed optimal crossover-frequency for that speaker (pair). This avoids double-dipping below the Xover.
 9. A second pass of volume equalisation is performed on the predicted, final EQ'd speaker responses. However, I haven't gotten around to fixing the printed message, because in the 2nd pass, there's no "filter hack" equalisation
 10. Definitely bump down your subs volume by around -3dB in the AVR menu after transfer. I haven't gotten around to fixing this yet.
-11. ----IMPORTANT----
-12. The tunable parameter weights are in alignFronts() and optimizeSubs(). Play with them.
+    
+11. The tunable parameter weights are in alignFronts() and optimizeSubs(). Play with them.
 
-** A1Evo_Alt.html **
+### A1Evo_Alt.html 
 
 This particular version filters FL/FR starting at 16Hz as in OCA's original, but creates the filters for the rest of the speakers starting at customCrossover. Then in generateRoll(), FL and FR are not rolled at their custom crossover, but at 16Hz. This allows you to post-hoc set Fronts to "Full Range" in the AVR Menu, Subwoofer to LFE+Main, and Bass Extraction Freq to the crossover assigned for your Fronts. The integration is seamless and the bass is full. 
 
-This is purely a hobby thing, and so this will remain independent from the main fork, and not be updated regularly.
+#### This is purely a hobby thing, and so this will remain independent from the main fork, and not be updated regularly.
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # A1 Evo Acoustica
 Audyssey-based Sound Optimization Tool for Denon/Marantz AVRs.
