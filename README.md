@@ -19,7 +19,7 @@ Differences -
     
 11. The tunable parameter weights are in alignFronts() and optimizeSubs(). Play with them.
 
-### A1Evo_Alt.html 
+### A1Evo_Alt.html - Based on the latest v7.3
 
 This particular version filters FL/FR starting at 16Hz as in OCA's original, but creates the filters for the rest of the speakers starting at customCrossover. Then in generateRoll(), FL and FR are not rolled at their custom crossover, but at 16Hz. This allows you to post-hoc set Fronts to "Full Range" in the AVR Menu, Subwoofer to LFE+Main, and Bass Extraction Freq to the crossover assigned for your Fronts. The integration is seamless and the bass is full. 
 
