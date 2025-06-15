@@ -1,3 +1,21 @@
+# OCA's A1 Evo Acoustica
+
+This edit is specifically for multi-sub configurations. 
+
+Differences - 
+
+1. The raw imported IRs from Audyssey are now windowed with Tukey windows, and a frequency-dependent windowing. This provides a more robust estimation of the actual frequency response of the speaker. No other downstream windowing is changed or affected.
+2. C is back to not being treated with L/R
+3. Phase unwrapping is performed for all analysis steps
+4. During inter-sub alignment, flatness of response in the 20-120Hz band, group delay and phase cohererence are optimised along with SPL
+5. The same optimisations are also applied for the sub-L/R integration
+6. During these alignments, fMax is reduced to 150 instead of 250 Hz. This specifically assumes reference grade subwoofers.
+7. And therefore, all crossovers are capped at 120Hz to avoid bass localisation. This of course assumes atleast bookshelf sized speakers.
+8. A second pass of volume equalisation is performed on the predicted, final EQ'd speaker responses. However, I haven't gotten around to fixing the printed message, because in the 2nd pass, there's no "filter hack" equalisation
+10. Definitely bump down your subs volume by around -3dB in the AVR menu after transfer. I haven't gotten around to fixing this yet.
+
+This is purely a hobby thing, and so this will remain independent from the main fork, and not be updated regularly.
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # A1 Evo Acoustica
 Audyssey-based Sound Optimization Tool for Denon/Marantz AVRs.
 
