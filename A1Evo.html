@@ -3237,7 +3237,7 @@ async function refFilter(index, orgIndex) {
   await postNext('Smooth', index, {smoothing: "Var"});
   const mp = await postNext('Minimum phase version', index, {'include cal': true, 'append lf tail': false, 'append hf tail': false, 'frequency warping': false, 'replicate data': true});
   mpIndex = parseInt(Object.keys(mp.results)[0], 10);
-  await postNext('Arithmetic', [nSpeakers + 2, mpIndex], {function: "A / B", maxGain: 0, lowerLimit: (!xt32 && !xt) ? 375 : 16, upperLimit: (!xt32 && !xt) ? 500 : 252});
+  await postNext('Arithmetic', [nSpeakers + 2, mpIndex], {function: "A / B", maxGain: 0, lowerLimit: (!xt32 && !xt) ? 375 : customCrossover[orgIndex] - (customCrossover[orgIndex] / 20), upperLimit: (!xt32 && !xt) ? 500 : 252});
   await new Promise(resolve => setTimeout(resolve, speedDelay));
   await postNext('Smooth', mpIndex + 1, {smoothing: "None"});
   await postNext('Minimum phase version', mpIndex + 1, {'include cal': true, 'append lf tail': false, 'append hf tail': false, 'frequency warping': false, 'replicate data': true});
