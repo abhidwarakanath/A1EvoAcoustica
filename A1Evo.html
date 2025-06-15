@@ -671,10 +671,10 @@ and noninfringement. Use at your own risk.
   <div class="crossover-slider">
   <div class="slider-label">
   <span>Subwoofer EQ filter boost</span>
-  <span id="subBoostValue">5 dB</span>
+  <span id="subBoostValue">0 dB</span>
   </div>
   <div class="tooltip-container">
-  <input type="range" id="subBoostSlider" class="slider" min="0" max="6" step="0.1" value="0">
+  <input type="range" id="subBoostSlider" class="slider" min="0" max="6" step="0.5" value="0">
   <div class="tooltip">Maximum allowed boost amount for subwoofer EQ filters - 0dB: allows only cut filters</div>
   </div></div>
   <div class="crossover-slider">
@@ -702,10 +702,10 @@ and noninfringement. Use at your own risk.
   <div class="crossover-slider">
   <div class="slider-label">
   <span>Maximum crossover frequency - Front mains</span>
-  <span id="maxFreqValueFR">250 Hz</span>
+  <span id="maxFreqValueFR">120 Hz</span>
   </div>
   <div class="tooltip-container">
-  <input type="range" id="maxFreqSliderFR" class="slider" min="0" max="10" step="1" value="10">
+  <input type="range" id="maxFreqSliderFR" class="slider" min="0" max="5" step="1" value="5">
   <div class="tooltip">Select maximum search frequency for front speakers crossover optimization</div>
   </div>
   </div>
@@ -726,10 +726,10 @@ and noninfringement. Use at your own risk.
   <div class="crossover-slider">
   <div class="slider-label">
   <span>Maximum crossover frequency - Center speaker</span>
-  <span id="maxFreqValueC">250 Hz</span>
+  <span id="maxFreqValueC">120 Hz</span>
   </div>
   <div class="tooltip-container">
-  <input type="range" id="maxFreqSliderC" class="slider" min="0" max="10" step="1" value="10">
+  <input type="range" id="maxFreqSliderC" class="slider" min="0" max="5" step="1" value="5">
   <div class="tooltip">Select maximum search frequency for center speaker crossover optimization</div>
   </div>
   </div>
@@ -750,10 +750,10 @@ and noninfringement. Use at your own risk.
   <div class="crossover-slider">
   <div class="slider-label">
   <span>Maximum crossover frequency - All other speakers</span>
-  <span id="maxFreqValue">250 Hz</span>
+  <span id="maxFreqValue">120 Hz</span>
   </div>
   <div class="tooltip-container">
-  <input type="range" id="maxFreqSlider" class="slider" min="0" max="10" step="1" value="10">
+  <input type="range" id="maxFreqSlider" class="slider" min="0" max="5" step="1" value="5">
   <div class="tooltip">Select maximum search frequency for crossover optimization</div>
   </div>
   </div>
@@ -768,12 +768,6 @@ and noninfringement. Use at your own risk.
   </div>
   <div class="tooltip-container">
   <label class="checkbox-label">
-  <input type="checkbox" id="prioCenter">Center blend mode
-  </label>
-  <div class="tooltip">Add center speaker to front sound stage optimization. Will force identical crossovers for LCR.</div>
-  </div>
-  <div class="tooltip-container">
-  <label class="checkbox-label">
   <input type="checkbox" id="disableAllPass">Enable allpass filters
   </label>
   <div class="tooltip">Evaluate and add allpass filters to minimize dips below target curve</div>
@@ -782,7 +776,7 @@ and noninfringement. Use at your own risk.
   <label class="checkbox-label" style="border-bottom: 2px solid #e74c3c; width: fit-content;">
   <input type="checkbox" id="weakBass">Bass was too weak!
   </label>
-  <div class="tooltip">Atempt to fix sub(s) measurement volume offset problems</div>
+  <div class="tooltip">Fix sub(s) offset volume problem with certain measurement methods</div>
   </div>
   </div>
   <div class="rolloff-wrapper tooltip-container">
@@ -819,7 +813,7 @@ and noninfringement. Use at your own risk.
   </div></div>
 </script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/14.0.1/math.min.js"></script><script>
 
-const evoVersion = "7.3";
+const evoVersion = "6 Turbo";
 const baseUrl = 'http://localhost:4735/measurements', speedDelay = 255, maxDistanceLimit = 7.35;
 let micCalFile = new Array(16384).fill(0), audioCtx = null;
 let jsonName = 'receiver_config.avr', jsonType = 'avr', jsonContent = null;
@@ -828,7 +822,7 @@ let nSpeakers = null, nSubs = null, subMinTrim = -12, subMaxTrim = 12, lpf4LFE, 
 let customLevel = [], commandId = [], customDistance = [], customInvert = [], customCrossover = [], customFilter = [], deqFilter = [], subTrim = [], customMinFreq = [], customMaxFreq = [], customMinFreqFR = [], customMaxFreqFR = [], customMinFreqC = [], customMaxFreqC = [],customMargin = [], subAllPassQ = null, allpassQ = [], hiPass, hType;
 const defaultSlope = "L-R4";
 const dbValues = [-12, -15, -18, -20, -25];
-var subBoost = 0, bassFill = 0, levelLowVol = 2, enableInversion = false, addCenter = false, enableWeakBass = false, noAllpass = false, minFreq = 40, maxFreq = 250, minFreqFR = 40, maxFreqFR = 250, minFreqC = 40, maxFreqC = 250,  subRolloffEnabled = false, subRolloffFreq = null, subRolloffSlope = defaultSlope, lpf4lfeValue = null;
+var subBoost = 0, bassFill = 0, levelLowVol = 2, enableInversion = false, enableWeakBass = false, noAllpass = false, minFreq = 40, maxFreq = 120, minFreqFR = 40, maxFreqFR = 120, minFreqC = 40, maxFreqC = 120,  subRolloffEnabled = false, subRolloffFreq = null, subRolloffSlope = defaultSlope, lpf4lfeValue = null;
 
 function toggleExpertDrawer() {
   const drawer = document.getElementById('expertDrawer');
@@ -873,6 +867,7 @@ async function floatsToBase64(floatArray) {
     };
     reader.readAsDataURL(blob);
   });}
+  
 async function sendImpulseToRew(impulseData) {
   const rewEndpoint = 'http://localhost:4735/import/impulse-response-data';
   try {
@@ -900,6 +895,7 @@ async function sendImpulseToRew(impulseData) {
     }
     throw error;
   }}
+  
 async function extractMeasurements() {
   const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
   await clearCommands();
@@ -962,7 +958,7 @@ async function extractMeasurements() {
   const processMeasurements = async () => {
     const measurementProcessors = {
       ady: async () => {
-        const {detectedChannels} = jData;
+        const { detectedChannels } = jData;
         for (const [key, detectedChannel] of Object.entries(detectedChannels)) {
           const {responseData, commandId} = detectedChannel;
           if (commandId && commandId.startsWith("SW")) {
@@ -1086,27 +1082,27 @@ async function extractMeasurements() {
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      background-color: #f9f9f9;
-      color: #333;
+      background-color: #f9f9f9; /* Light background */
+      color: #333; /* Dark text for better contrast */
       padding: 20px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      border: 1px solid #ddd; /* Lighter border */
+      border-radius: 8px; /* More rounded corners */
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Softer shadow */
       max-width: 80%;
       max-height: 80%;
       overflow: auto;
       z-index: 1000;
-      font-family: sans-serif;
-      font-size: 16px;
-      line-height: 1.5;
+      font-family: sans-serif; /* Use a readable sans-serif font */
+      font-size: 16px; /* Slightly larger font size */
+      line-height: 1.5; /* Improved line height for readability */
     `;
     const closeBtn = document.createElement('button');
     closeBtn.textContent = 'Close';
     closeBtn.style.cssText = `
       display: block;
-      margin-top: 15px;
-      padding: 8px 15px;
-      background-color: #4CAF50;
+      margin-top: 15px; /* More space above the button */
+      padding: 8px 15px; /* Better button padding */
+      background-color: #4CAF50; /* Green button */
       color: white;
       border: none;
       border-radius: 4px;
@@ -1139,6 +1135,7 @@ async function extractMeasurements() {
   } finally {
       if (inv_micCal && inv_micCal.length > 0) inv_micCal.length = 0;
   }}
+  
 async function inputFile(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -1248,32 +1245,28 @@ async function checkAutomatedMeasurements(){
       title: allResponses[key].title
     }));
   measurementArray.sort((a, b) => {
+    const specialNames = ["C", "FD", "BD", "SD", "FH", "CH"];
     const titleA = a.title;
     const titleB = b.title;
-    const getPriority = (title) => {
-      if (title.startsWith('FL')) return 1;
-      if (title.startsWith('FR')) return 2;
-      if (title.startsWith('C') && !title.startsWith('CH')) return 3;
-      if (title.startsWith('SW')) return 100;
-      return 10;
-    };
-    const priorityA = getPriority(titleA);
-    const priorityB = getPriority(titleB);
-    if (priorityA !== priorityB) {
-      return priorityA - priorityB;
-    }
-    if (priorityA === 100) {
-      const subA_match = titleA.match(/^SW(\d+)/);
-      const subB_match = titleB.match(/^SW(\d+)/);
-      if (!subA_match || !subB_match) return naturalStringCompare(titleA, titleB);
-      const subA = parseInt(subA_match[1], 10);
-      const subB = parseInt(subB_match[1], 10);
+    const isSpecialA = specialNames.some(name => titleA.startsWith(name));
+    const isSpecialB = specialNames.some(name => titleB.startsWith(name));
+    const isSWA = titleA.startsWith("SW");
+    const isSWB = titleB.startsWith("SW");
+    if (isSWA && !isSWB) return 1;
+    if (isSWB && !isSWA) return -1;
+    if (isSpecialA && !isSpecialB) return 1;
+    if (isSpecialB && !isSpecialA) return -1;
+    if (isSWA && isSWB) {
+      const subA = parseInt(titleA[2], 10);
+      const subB = parseInt(titleB[2], 10);
       if (subA !== subB) return subA - subB;
-      const measA = parseInt((titleA.match(/\d+$/) || ['0'])[0], 10);
-      const measB = parseInt((titleB.match(/\d+$/) || ['0'])[0], 10);
+      const measA = parseInt(titleA.slice(3), 10) || 0;
+      const measB = parseInt(titleB.slice(3), 10) || 0;
       return measA - measB;
     }
-
+    if (isSpecialA && isSpecialB) {
+      return naturalStringCompare(titleA, titleB);
+    }
     return naturalStringCompare(titleA, titleB);
   });
   let newIndex = nTotal + 1;
@@ -1406,30 +1399,27 @@ async function checkRewMeasurements(){
     title: allResponses[key].title
   }));
   measurementArray.sort((a, b) => {
+    const specialNames = ["C", "FD", "BD", "SD", "FH", "CH"];
     const titleA = a.title;
     const titleB = b.title;
-    const getPriority = (title) => {
-      if (title.startsWith('FL')) return 1;
-      if (title.startsWith('FR')) return 2;
-      if (title.startsWith('C') && !title.startsWith('CH')) return 3;
-      if (title.startsWith('SW')) return 100;
-      return 10;
-    };
-    const priorityA = getPriority(titleA);
-    const priorityB = getPriority(titleB);
-    if (priorityA !== priorityB) {
-      return priorityA - priorityB;
-    }
-    if (priorityA === 100) {
-      const subA_match = titleA.match(/^SW(\d+)/);
-      const subB_match = titleB.match(/^SW(\d+)/);
-      if (!subA_match || !subB_match) return naturalStringCompare(titleA, titleB);
-      const subA = parseInt(subA_match[1], 10);
-      const subB = parseInt(subB_match[1], 10);
+    const isSpecialA = specialNames.some(name => titleA.startsWith(name));
+    const isSpecialB = specialNames.some(name => titleB.startsWith(name));
+    const isSWA = titleA.startsWith("SW");
+    const isSWB = titleB.startsWith("SW");
+    if (isSWA && !isSWB) return 1;
+    if (isSWB && !isSWA) return -1;
+    if (isSpecialA && !isSpecialB) return 1;
+    if (isSpecialB && !isSpecialA) return -1;
+    if (isSWA && isSWB) {
+      const subA = parseInt(titleA[2], 10);
+      const subB = parseInt(titleB[2], 10);
       if (subA !== subB) return subA - subB;
-      const measA = parseInt((titleA.match(/\d+$/) || ['0'])[0], 10);
-      const measB = parseInt((titleB.match(/\d+$/) || ['0'])[0], 10);
+      const measA = parseInt(titleA.slice(3), 10) || 0;
+      const measB = parseInt(titleB.slice(3), 10) || 0;
       return measA - measB;
+    }
+    if (isSpecialA && isSpecialB) {
+      return naturalStringCompare(titleA, titleB);
     }
     return naturalStringCompare(titleA, titleB);
   });
@@ -1449,6 +1439,7 @@ async function checkRewMeasurements(){
     const progress2 = ((nTotal - j + 1) / nTotal) * 100;
     console.infoUpdate(`Clean up ${progress2.toFixed(2)}% completed`);
   }}
+  
 async function main(){
   const logContainer = document.getElementById('logContainer');
   const measurementChoice = document.getElementById('measurementChoice');
@@ -1457,14 +1448,13 @@ async function main(){
   measurementChoice.classList.add('transitioned');
   const startTime = performance.now();
   console.infoBold(`** Customizations start **`);
-  const defaults = {subBoost: 0, bassFill: 0, levelLowVol: 2, enableInversion: false, addCenter: false, enableWeakBass: false, noAllpass: false, minFreq: 40, maxFreq: 250, minFreqFR: 40, maxFreqFR: 250, minFreqC: 40, maxFreqC: 250};
-  const customizations = {subBoost, bassFill, levelLowVol, enableInversion, addCenter, enableWeakBass, noAllpass, minFreq, maxFreq, minFreqFR, maxFreqFR, minFreqC, maxFreqC};
+  const defaults = {subBoost: 0, bassFill: 0, levelLowVol: 2, enableInversion: false, enableWeakBass: false, noAllpass: false, minFreq: 40, maxFreq: 250, minFreqFR: 40, maxFreqFR: 250, minFreqC: 40, maxFreqC: 250};
+  const customizations = {subBoost, bassFill, levelLowVol, enableInversion, enableWeakBass, noAllpass, minFreq, maxFreq, minFreqFR, maxFreqFR, minFreqC, maxFreqC};
   const descriptions = {
     subBoost: `Subwoofer EQ filters maximum allowed boost (dB): `,
     bassFill: `Subwoofer target curve infill value (dB): `,
     levelLowVol: `Low volume listening level offset (dB): `,
     enableInversion: `Out of phase 'Speaker' detection and automatic inversion? `,
-    addCenter: 'Center speaker prioritized in subwoofer alignment? ',
     enableWeakBass: `Applied SPL offset fix to subwoofer measurements? `,
     noAllpass: `Allpass filters enabled? `,
     minFreqFR: `Minimum searchable crossover frequency - front mains: `,
@@ -1499,11 +1489,13 @@ async function main(){
   } else {
     console.log('<< Using previously processed and saved measurements >>');
   }
-  await secondary();
-  await setVolumeLevels();
-  await sortBass();
-  await refResults();
-  await lowVolumeFilters();
+	await secondary();
+	await setVolumeLevels();                    // first (pre-EQ) pass
+	await sortBass();
+	await refResults();                         // “final” curves
+	await setVolumeLevels({postFilter:true});   // second (post-EQ) pass
+	await lowVolumeFilters();
+
   await fetchSafe('target-level', nSpeakers + 2, targetLevel);
   await new Promise(resolve => setTimeout(resolve, speedDelay / 4));
   await postSafe(`${baseUrl}/${nSpeakers + 2}/target-settings`, {shape: 'Driver', lowPassCrossoverType: "L-R4", highPassCrossoverType: hType, lowPassCutoffHz: lpf4LFE, highPassCutoffHz: hiPass}, 'Update processed');
@@ -1528,7 +1520,7 @@ async function main(){
   };
   console.infoBold(`'A1 Evo Acoustica' completed optimization of your system in ${formatTime(totalTime)} on ${getCurrentDateTime()}.`);
   const oceFilename = await generateOCA();
-  console.warn(`Please return to main application and transfer saved calibration file (.oca) to your receiver using option '4'`);
+  console.warn(`Please return to main application and transfer saved calibration file (.oca) to your receiver using option '3'`);
   console.log(`You can view the original and optimized (final) responses of your system's speakers and subwoofers, along with the applied filters (filter), in REW 'All SPL' tab`);
   console.log(`You can find a copy of the full log of this optimization in the application folder with the same name as the optimization file with '.html' extension`)
   console.log(`Optimal settings for loud / normal listening volume levels will be active in 'Flat' mode`);
@@ -1537,6 +1529,7 @@ async function main(){
   console.infoBold(`OCA`);
   await updateAPI('blocking', false);
   await updateAPI('inhibit-graph-updates', false);}
+  
 async function checkREW() {
   try {
     await postSafe(`http://localhost:4735/eq/default-equaliser`, {manufacturer: "Generic", model: "Generic"}, "Default equaliser changed");
@@ -1555,7 +1548,7 @@ async function checkREW() {
         const major = parseInt(versionMatch[1], 10);
         const minor = parseInt(versionMatch[2], 10);
         const beta = parseInt(versionMatch[3], 10);
-        const versionOK = major > 5 || (major === 5 && minor > 40) || (major === 5 && minor === 40 && beta >= 86);
+        const versionOK = major > 5 || (major === 5 && minor > 40) || (major === 5 && minor === 40 && beta >= 84);
         if (!versionOK) {
           console.error(`Installed REW version (${versionString}) is outdated and incompatible with A1 Evo! Please install the latest REW Beta from https://www.avnirvana.com/threads/rew-api-beta-releases.12981/.`);
           throwError();
@@ -1615,6 +1608,7 @@ async function checkREW() {
   console.info(`Total number of measurements allowed in REW: ${rewMaxLimit}`);
   console.info(`Optimizing for user uploaded target curve: ${targetCurvePath}`);
   console.info(`Active optimizer: A1 Evo Acoustica ${evoVersion}`);}
+  
 async function resetAll(){
   await postSafe(`http://localhost:4735/eq/default-equaliser`, {manufacturer: "Generic", model: "Generic"}, "Default equaliser changed");
   await postSafe(`http://localhost:4735/eq/default-room-curve-settings`, {addRoomCurve: false}, "Update processed");
@@ -1627,7 +1621,7 @@ async function resetAll(){
     console.infoUpdate(`Resetting IR windows, smoothing, EQ type, target shape and room curve settings...${(i / nTotal * 100).toFixed(2)}%`);
     await postNext('Smooth', i, {smoothing: "None"});
     await new Promise((resolve) => setTimeout(resolve, speedDelay / 10));
-    await postSafe(`${baseUrl}/${i}/ir-windows`, {leftWindowType: "Rectangular", rightWindowType: "Rectangular", addFDW: false}, "Update processed");
+    await postSafe(`${baseUrl}/${i}/ir-windows`, {leftWindowType: "Tukey 0.01", rightWindowType: "Tukey 0.25",addFDW: false}, "Update processed");
     await new Promise((resolve) => setTimeout(resolve, speedDelay / 10));
     await postSafe(`${baseUrl}/${i}/target-settings`, {shape: "None"}, "Update processed");
     await new Promise((resolve) => setTimeout(resolve, speedDelay / 10));
@@ -1636,6 +1630,7 @@ async function resetAll(){
     await postSafe(`${baseUrl}/${i}/equaliser`, {manufacturer: "Generic", model: "Generic"}, "Equaliser selected");
     await new Promise((resolve) => setTimeout(resolve, speedDelay / 10));
   }}
+  
 async function ocAced() {
  const allowedNames = ['FL','FR','C','SLA','SRA','SBL','SBR','SB','FHL','FHR','FWL','FWR','TFL','TFR','TML','TMR','TRL','TRR','RHL','RHR','FDL','FDR','SDL','SDR','BDL','BDR','SHL','SHR','TS','CH','SW1','SW2','SW3','SW4'];
   function extractBaseName(title) {
@@ -2020,6 +2015,7 @@ async function getSpatial(indices, name) {
   const vectorKey = Object.keys(vectorAverage.results)[0];
   const key = parseInt(vectorKey, 10);
   await fetchREW(key, 'PUT', {title: name + "o"});}
+  
 async function checkPolarity() {
   const testFrequencies = [200, 1000, 12000];
   async function getPhase(index, frequency) {
@@ -2102,25 +2098,87 @@ async function checkPolarity() {
   } else if (invertedCount === nSpeakers) {
     console.warn(`Nothing wrong with your speaker polarities, all speakers may seem inverted when phase inversion is elsewhere in the system!`);
   }}
-async function setVolumeLevels() {
-  console.infoBold(`Applied speaker volume offsets based on perceptual loudness levels (ISO 532-2):`)
-  await postSafe(`${baseUrl}/${1}/target-settings`, {shape: "None"}, "Update processed");
-  await postSafe(`http://localhost:4735/eq/house-curve`, targetCurvePath, "House curve set");
-  await postSafe(`${baseUrl}/${1}/room-curve-settings`, {addRoomCurve: false}, "Update processed");
-  await postNext('Calculate target level', 1);
-  await postNext('Generate target measurement', 1);
-  await postNext('Minimum phase version', nSpeakers + 2, {"include cal": false, "append lf tail": false, "append hf tail": false, "frequency warping": false, "replicate data": true});
-  await postDelete(nSpeakers + 2);
-  let indices = Array.from({length: nSpeakers}, (_, i) => i + 1);
-  indices.push(nSpeakers + 2);
+  
+/**
+ * Loudness-normalise speakers (ISO 532-2) and write AVR trims.
+ *
+ * @param {Object}   [opts]
+ * @param {Boolean}  [opts.postFilter=false]
+ *        - false  ➜ first pass, uses raw (pre-EQ) measurements and also
+ *                  writes filter-side gain compensation into customMargin[].
+ *        - true   ➜ second pass, uses “…final” predicted responses **only**
+ *                  updates customLevel[] (AVR trims) — filters stay put.
+ */
+async function setVolumeLevels({ postFilter = false } = {}) {
+
+  // ────────── 1. Choose which measurements to analyse ──────────
+  let indices   = [];
+  const passLabel = postFilter ? 'post-EQ (final)' : 'pre-EQ';
+
+  if (postFilter) {
+    // Gather “…final” predictions generated by refResults()
+    const all   = await fetchREW();
+    const meas  = Object.keys(all).map(k => ({
+      index : parseInt(k, 10),
+      title : all[k].title
+    }));
+
+    // Include *every* speaker (SW1 included) on the second pass
+    for (let i = 1; i <= nSpeakers; i++) {
+      const hit = meas.find(m => m.title.startsWith(commandId[i]) &&
+                                 m.title.toLowerCase().includes('final'));
+      if (!hit) {
+        console.warn(`No 'final' response found for ${commandId[i]} — skipping`);
+        continue;
+      }
+      indices.push(hit.index);
+    }
+
+    if (indices.length === 0) {
+      console.error('setVolumeLevels(postFilter:true) — nothing to trim.');
+      return;
+    }
+
+  } else {
+    // First pass: raw speakers + temporary target
+    // -- exclude the LFE channel (SW1) from alignment
+    indices = Array.from({ length: nSpeakers }, (_, i) => i + 1)
+                   .filter(idx => commandId[idx] !== 'SW1o');
+
+    // Push the temporary target measurement
+    indices.push(nSpeakers + 2);
+  }
+
+  console.infoBold(`Applied speaker volume offsets (${passLabel}) `
+                 + 'based on perceptual loudness (ISO 532-2):');
+
+  // ────────── 2. Make sure REW’s target is benign (first pass only) ──────────
+  if (!postFilter) {
+    await postSafe(`${baseUrl}/${1}/target-settings`, { shape: 'None' }, 'Update processed');
+    await postSafe('http://localhost:4735/eq/house-curve', targetCurvePath, 'House curve set');
+    await postSafe(`${baseUrl}/${1}/room-curve-settings`, { addRoomCurve: false }, 'Update processed');
+    await postNext('Calculate target level', 1);
+    await postNext('Generate target measurement', 1);
+    await postNext('Minimum phase version', nSpeakers + 2, {
+      'include cal'       : false,
+      'append lf tail'    : false,
+      'append hf tail'    : false,
+      'frequency warping' : false,
+      'replicate data'    : true
+    });
+    await postDelete(nSpeakers + 2);
+  }
+
+  // ────────── 3. Loudness analysis (ISO 532-2) ──────────
   const phonLevels = [];
-  for (const index of indices) {
-    const phons = await calculateLoudnessPhons(index);
+  for (const idx of indices) {
+    const phons = await calculateLoudnessPhons(idx);
     phonLevels.push(phons);
   }
+
   const mean = phonLevels.slice(0, -1).reduce((sum, avg) => sum + avg, 0) / (phonLevels.length - 1);
   const differences = phonLevels.map(ix => ix - mean);
-  for (let i = 0; i < indices.length - 1; i++) {
+  for (let i = 0; i < indices.length; i++) {
     await postNext('Add SPL offset', indices[i], {offset: -differences[i]});
     customLevel[i + 1] = Math.round(-differences[i] * 2) / 2;
     customMargin[i + 1] = (-differences[i]) - customLevel[i + 1];
@@ -2136,6 +2194,8 @@ async function setVolumeLevels() {
   tcName = normalizedPath.split("/").pop().replace(/\.[^/.]+$/, "").replace(/\s+/g, "");
   tcName = `tc${tcName}${targetLevel.toFixed(1)}dB`;
   await fetchREW(nSpeakers + 2, 'PUT', {title: tcName, notes: 'Remember game theory!'});}
+
+  
 async function calculateLoudnessPhons(measurementNumber) {
   const p0 = 20e-6;
   const minFreq = 20;
@@ -2264,6 +2324,185 @@ async function sortBass() {
     const lpCutoffCandidates_main_thread = freqIndex.filter(freq => freq >= 80);
     const numWorkers = navigator.hardwareConcurrency || 4;
     const hpSearchStep = numWorkers >= 4 ? 1 : 2;
+    const workerScriptContent = `
+      function freqToIndex(freq, startFreq, ppo, totalPoints) {
+        if (freq < startFreq) return 0;
+        const index = ppo * Math.log2(freq / startFreq);
+        return Math.min(Math.round(index), totalPoints - 1);
+      }
+      function getLRFilterGain(freq, cutoff, lrOrderNumerical, type) {
+        if (freq <= 0 || cutoff <= 0 || lrOrderNumerical <= 0) return -200;
+        const ratio = freq / cutoff;
+        const ratioPow = Math.pow(ratio, lrOrderNumerical);
+        let magnitude;
+        if (type === 'LP') {
+            magnitude = 1 / (1 + ratioPow);
+        } else if (type === 'HP') {
+            magnitude = ratioPow / (1 + ratioPow);
+        }
+        if (magnitude <= 1e-10) return -200;
+        return 20 * Math.log10(magnitude);
+      }
+      function getButterworthFilterGain(freq, cutoff, order, type) {
+        if (freq <= 0 || cutoff <= 0 || order <= 0) return -200;
+        const ratio = freq / cutoff;
+        let magnitude;
+        if (type === 'LP') {
+            magnitude = 1 / Math.sqrt(1 + Math.pow(ratio, 2 * order));
+        } else if (type === 'HP') {
+            magnitude = Math.pow(ratio, order) / Math.sqrt(1 + Math.pow(ratio, 2 * order));
+        }
+        if (magnitude <= 1e-10) return -200;
+        return 20 * Math.log10(magnitude);
+      }
+      function applyFilters(dataMagnitude, frequencies, hpFreq, hpConfig, lpFreq, lpConfig) {
+        const filteredMagnitude = new Float32Array(dataMagnitude.length);
+        for (let i = 0; i < dataMagnitude.length; i++) {
+          const freq = frequencies[i];
+          const originalMag = dataMagnitude[i];
+          if (isNaN(originalMag)) {
+            filteredMagnitude[i] = NaN;
+            continue;
+          }
+          let hpGain, lpGain;
+          if (hpConfig.type === 'L-R') {
+              const hpEffectiveOrder = hpConfig.slope / 6;
+              hpGain = getLRFilterGain(freq, hpFreq, hpEffectiveOrder, 'HP');
+          } else if (hpConfig.type === 'BU') {
+              const hpOrder = hpConfig.slope / 6;
+              hpGain = getButterworthFilterGain(freq, hpFreq, hpOrder, 'HP');
+          } else { 
+            hpGain = -200;
+          }
+          if (lpConfig.type === 'L-R') {
+              const lpEffectiveOrder = lpConfig.slope / 6;
+              lpGain = getLRFilterGain(freq, lpFreq, lpEffectiveOrder, 'LP');
+          } else if (lpConfig.type === 'BU') {
+              const lpOrder = lpConfig.slope / 6;
+              lpGain = getButterworthFilterGain(freq, lpFreq, lpOrder, 'LP');
+          } else { 
+            lpGain = -200;
+          }
+          filteredMagnitude[i] = originalMag + hpGain + lpGain;
+        }
+        return filteredMagnitude;
+      }
+      function calculateVolumeAdjustmentAndError(responseToAdjust, targetMagnitude, frequencies, errorRangeStartFreq, errorRangeEndFreq, ppo, analysisStartFreq) {
+        let sumDiff = 0, count = 0, sumAbsoluteDiff = 0;
+        const totalPoints = frequencies.length;
+        const startIndex = freqToIndex(errorRangeStartFreq, analysisStartFreq, ppo, totalPoints);
+        const endIndex = freqToIndex(errorRangeEndFreq, analysisStartFreq, ppo, totalPoints);
+        if (startIndex >= totalPoints || endIndex < 0 || startIndex > endIndex) {
+          return {volumeAdjustment: 0, maeError: Infinity};
+        }
+        for (let i = startIndex; i <= endIndex; i++) {
+          if (isFinite(responseToAdjust[i]) && isFinite(targetMagnitude[i])) {
+            sumDiff += (targetMagnitude[i] - responseToAdjust[i]);
+            count++;
+          }
+        }
+        if (count === 0) {
+            return {volumeAdjustment: 0, maeError: Infinity};
+        }
+        const volumeAdjustment = sumDiff / count;
+        for (let i = startIndex; i <= endIndex; i++) {
+          if (isFinite(responseToAdjust[i]) && isFinite(targetMagnitude[i])) {
+            const alignedResponse = responseToAdjust[i] + volumeAdjustment;
+            const diff = alignedResponse - targetMagnitude[i];
+            sumAbsoluteDiff += Math.abs(diff);
+          }
+        }
+        const maeError = sumAbsoluteDiff / count;
+        return {volumeAdjustment, maeError};
+      }
+      let fixedAnalysisFrequencies, fixedAnalysisSubMagnitude, fixedAnalysisTargetMagnitude, commonPpo, fixedOverallAnalysisStartFreq, lpCutoffCandidates;
+      const hpSearchStep = ${hpSearchStep};
+      const hpCutoffCandidates = Array.from({ length: Math.floor((60 - 11) / hpSearchStep) + 1 }, (_, i) => 11 + i * hpSearchStep);
+      const hpFilterConfigs = [
+        {type: 'L-R', slope: 24}, {type: 'L-R', slope: 36}, {type: 'L-R', slope: 48},
+        {type: 'BU', slope: 12}, {type: 'BU', slope: 18}, {type: 'BU', slope: 24}, {type: 'BU', slope: 36}, {type: 'BU', slope: 48}
+      ];
+      const lpFilterConfig = {type: 'L-R', slope: 24};
+      const filterMagnitudeCache = new Map();
+      self.onmessage = function(event) {
+        if (event.data.type === 'init') {
+          fixedAnalysisFrequencies = new Float32Array(event.data.fixedAnalysisFrequencies);
+          fixedAnalysisSubMagnitude = new Float32Array(event.data.fixedAnalysisSubMagnitude);
+          fixedAnalysisTargetMagnitude = new Float32Array(event.data.fixedAnalysisTargetMagnitude);
+          commonPpo = event.data.commonPpo;
+          fixedOverallAnalysisStartFreq = event.data.fixedOverallAnalysisStartFreq;
+          lpCutoffCandidates = event.data.lpCutoffCandidates;
+          filterMagnitudeCache.clear();
+        } else if (event.data.type === 'taskBatch') {
+          const { tasks, batchId } = event.data;
+          let minMaeErrorForBatch = Infinity;
+          let optimalResultForBatch = null;
+          for (const task of tasks) { 
+            const { errorEvalStartFreq, errorEvalEndFreq } = task;
+            let minMaeErrorForCurrentTask = Infinity;
+            let optimalHpFreqForCurrentTask = null;
+            let optimalHpConfigForCurrentTask = null;
+            let optimalLpFreqForCurrentTask = null;
+            let optimalLpConfigForCurrentTask = null;
+            let optimalVolumeAdjustmentForCurrentTask = null;
+            for (const hpFreq of hpCutoffCandidates) {
+              for (const lpFreq of lpCutoffCandidates) {
+                  if (lpFreq <= hpFreq) continue;
+                  for (const hpConfig of hpFilterConfigs) {
+                      const currentLpConfig = lpFilterConfig;
+                      const cacheKey = hpFreq + '-' + hpConfig.type + '-' + hpConfig.slope + '-' + lpFreq + '-' + currentLpConfig.type + '-' + currentLpConfig.slope;
+                      let currentFilteredTarget;
+                      if (filterMagnitudeCache.has(cacheKey)) {
+                          currentFilteredTarget = filterMagnitudeCache.get(cacheKey);
+                      } else {
+                          currentFilteredTarget = applyFilters(fixedAnalysisTargetMagnitude, fixedAnalysisFrequencies, hpFreq, hpConfig, lpFreq, currentLpConfig);
+                          filterMagnitudeCache.set(cacheKey, currentFilteredTarget);
+                      }
+                      const {volumeAdjustment, maeError} = calculateVolumeAdjustmentAndError(
+                        fixedAnalysisSubMagnitude,
+                        currentFilteredTarget,
+                        fixedAnalysisFrequencies,
+                        errorEvalStartFreq,
+                        errorEvalEndFreq,
+                        commonPpo,
+                        fixedOverallAnalysisStartFreq
+                      );
+                      if (maeError < minMaeErrorForCurrentTask) {
+                        minMaeErrorForCurrentTask = maeError;
+                        optimalHpFreqForCurrentTask = hpFreq;
+                        optimalHpConfigForCurrentTask = hpConfig;
+                        optimalLpFreqForCurrentTask = lpFreq;
+                        optimalLpConfigForCurrentTask = currentLpConfig;
+                        optimalVolumeAdjustmentForCurrentTask = volumeAdjustment;
+                      }
+                  }
+              }
+            }
+            if (minMaeErrorForCurrentTask < minMaeErrorForBatch) {
+              minMaeErrorForBatch = minMaeErrorForCurrentTask;
+              optimalResultForBatch = {
+                highPassFreq: optimalHpFreqForCurrentTask,
+                highPassSlope: optimalHpConfigForCurrentTask ? optimalHpConfigForCurrentTask.slope : null,
+                highPassType: optimalHpConfigForCurrentTask ? optimalHpConfigForCurrentTask.type : null,
+                lowPassFreq: optimalLpFreqForCurrentTask,
+                lowPassSlope: optimalLpConfigForCurrentTask ? optimalLpConfigForCurrentTask.slope : null,
+                lowPassType: optimalLpConfigForCurrentTask ? optimalLpConfigForCurrentTask.type : null,
+                volumeAdjustment: optimalVolumeAdjustmentForCurrentTask,
+                minError: minMaeErrorForCurrentTask,
+                optimalErrorRangeStart: errorEvalStartFreq,
+                optimalErrorRangeEnd: errorEvalEndFreq,
+              };
+            }
+          }
+          self.postMessage({
+            type: 'batchResult',
+            batchId: batchId,
+            result: optimalResultForBatch
+          });
+        }
+      };
+    `;
+    const workerUrl = 'data:application/javascript,' + encodeURIComponent(workerScriptContent);
     const responseSubRaw = await fetchSafe('frequency-response?smoothing=1%2F48&ppo=96', nSpeakers + 1);
     const responseTargetRaw = await fetchSafe('frequency-response?smoothing=1%2F48&ppo=96', nSpeakers + 2);
     const subMagnitudeDecoded = b64ToFloat32ArrayBE(responseSubRaw.magnitude);
@@ -2303,23 +2542,23 @@ async function sortBass() {
       let overallOptimalResult = null;
       let validDataCommonStartFreq = -1;
       for (let i = 0; i < fixedOverallAnalysisTotalPoints; i++) {
-        if (isFinite(fixedAnalysisSubMagnitude[i]) && isFinite(fixedAnalysisTargetMagnitude[i])) {
-          validDataCommonStartFreq = fixedAnalysisFrequencies[i];
-          break;
-        }
+          if (isFinite(fixedAnalysisSubMagnitude[i]) && isFinite(fixedAnalysisTargetMagnitude[i])) {
+              validDataCommonStartFreq = fixedAnalysisFrequencies[i];
+              break;
+          }
       }
       if (validDataCommonStartFreq === -1) {
-        return reject(new Error("Subwoofer alignment failed: No common finite frequency response data found between subwoofer and target over the analysis range. Please ensure your measurements have overlapping valid data."));
+          return reject(new Error("Subwoofer alignment failed: No common finite frequency response data found between subwoofer and target over the analysis range. Please ensure your measurements have overlapping valid data."));
       }
       const errorEvalStartFreqCandidates = Array.from({ length: 25 - 8 + 1 }, (_, i) => 8 + i);
       const errorEvalEndFreqCandidates = Array.from({ length: Math.floor((800 - 250) / 10) + 1 }, (_, i) => 250 + i * 10);
       const allTasks = [];
       for (const startFreqCandidate of errorEvalStartFreqCandidates) {
-        const effectiveStartFreq = Math.max(startFreqCandidate, validDataCommonStartFreq); 
-        for (const endFreq of errorEvalEndFreqCandidates) {
-          if (endFreq <= effectiveStartFreq) continue;
-          allTasks.push({ errorEvalStartFreq: effectiveStartFreq, errorEvalEndFreq: endFreq }); 
-        }
+          const effectiveStartFreq = Math.max(startFreqCandidate, validDataCommonStartFreq); 
+          for (const endFreq of errorEvalEndFreqCandidates) {
+              if (endFreq <= effectiveStartFreq) continue;
+              allTasks.push({ errorEvalStartFreq: effectiveStartFreq, errorEvalEndFreq: endFreq }); 
+          }
       }
       if (allTasks.length === 0) {
           return reject(new Error("Subwoofer alignment failed: No valid error evaluation ranges could be constructed. This might indicate that your measurement data range is too narrow."));
@@ -2333,66 +2572,67 @@ async function sortBass() {
       console.info(`Generated ${allTasks.length} individual error evaluation tasks, grouped into ${totalBatches} batches, distributed over ${numWorkers} CPU cores.`);
       let nextBatchIndex = 0;
       const sendNextBatchToWorker = (workerIndex) => {
-        if (nextBatchIndex < totalBatches) {
-          const currentBatch = batches[nextBatchIndex];
-          const currentBatchId = batchIdCounter++;
-          workers[workerIndex].postMessage({
-            type: 'taskBatch',
-            tasks: currentBatch,
-            batchId: currentBatchId
-          });
-          nextBatchIndex++;
-        }
+          if (nextBatchIndex < totalBatches) {
+              const currentBatch = batches[nextBatchIndex];
+              const currentBatchId = batchIdCounter++;
+              workers[workerIndex].postMessage({
+                  type: 'taskBatch',
+                  tasks: currentBatch,
+                  batchId: currentBatchId
+              });
+              nextBatchIndex++;
+          }
       };
       const handleWorkerMessage = (event, workerIndex) => {
-        if (event.data.type === 'log') {
-            console.log(event.data.message);
-        } else if (event.data.type === 'warning') {
-            console.warn(event.data.message);
-        } else if (event.data.type === 'batchResult') {
-          const batchResult = event.data.result;
-          batchesProcessed++;
-          console.infoUpdate(`Progress: ${batchesProcessed} of ${totalBatches} batches completed.`);
-          if (batchResult && batchResult.minError < overallMinMaeError) {
-            overallMinMaeError = batchResult.minError;
-            overallOptimalResult = batchResult;
-            console.infoUpdate(`New best: frequency range ${overallOptimalResult.optimalErrorRangeStart}Hz - ${overallOptimalResult.optimalErrorRangeEnd}Hz => mean absolute error: ${overallMinMaeError.toFixed(2)}%`);
+          if (event.data.type === 'log') {
+              console.log(event.data.message);
+          } else if (event.data.type === 'warning') { // Simplified logging for warnings
+              console.warn(event.data.message);
+          } else if (event.data.type === 'batchResult') {
+              const batchResult = event.data.result;
+              batchesProcessed++;
+              console.infoUpdate(`Progress: ${batchesProcessed} of ${totalBatches} batches completed.`);
+              if (batchResult && batchResult.minError < overallMinMaeError) {
+                  overallMinMaeError = batchResult.minError;
+                  overallOptimalResult = batchResult;
+                  console.infoUpdate(`New best: frequency range ${overallOptimalResult.optimalErrorRangeStart}Hz - ${overallOptimalResult.optimalErrorRangeEnd}Hz => mean absolute error: ${overallMinMaeError.toFixed(2)}%`);
+              }
+              if (batchesProcessed === totalBatches) {
+                  workers.forEach(worker => worker.terminate());
+                  URL.revokeObjectURL(workerUrl);
+                  if (overallOptimalResult && overallOptimalResult.minError !== Infinity) {
+                      resolve(overallOptimalResult);
+                  } else {
+                      reject(new Error("Subwoofer alignment failed to find optimal result. This might indicate an issue with input data or search parameters."));
+                  }
+              } else {
+                  sendNextBatchToWorker(workerIndex);
+              }
           }
-          if (batchesProcessed === totalBatches) {
-            workers.forEach(worker => worker.terminate());
-            if (overallOptimalResult && overallOptimalResult.minError !== Infinity) {
-                resolve(overallOptimalResult);
-            } else {
-                reject(new Error("Subwoofer alignment failed to find optimal result. This might indicate an issue with input data or search parameters."));
-            }
-          } else {
-             sendNextBatchToWorker(workerIndex);
-          }
-        }
       };
       for (let i = 0; i < numWorkers; i++) {
-        const worker = new Worker('./webWorker.js'); 
-        workers.push(worker);
-        worker.onmessage = (event) => handleWorkerMessage(event, i);
-        worker.onerror = (error) => {
-          console.error(`Error in worker:`, error);
-          worker.terminate();
-          reject(new Error(`A worker failed. Subwoofer alignment aborted. Error: ${error.message}`));
-        };
-        const workerFrequencies = new Float32Array(fixedAnalysisFrequencies);
-        const workerSubMagnitude = new Float32Array(fixedAnalysisSubMagnitude);
-        const workerTargetMagnitude = new Float32Array(fixedAnalysisTargetMagnitude);
-        worker.postMessage({
-          type: 'init',
-          fixedAnalysisFrequencies: workerFrequencies.buffer,
-          fixedAnalysisSubMagnitude: workerSubMagnitude.buffer,
-          fixedAnalysisTargetMagnitude: workerTargetMagnitude.buffer,
-          commonPpo: commonPpo,
-          fixedOverallAnalysisStartFreq: fixedOverallAnalysisStartFreq,
-          lpCutoffCandidates: lpCutoffCandidates_main_thread,
-          hpSearchStep: hpSearchStep
-        }, [workerFrequencies.buffer, workerSubMagnitude.buffer, workerTargetMagnitude.buffer]);
-        sendNextBatchToWorker(i);
+          const worker = new Worker(workerUrl);
+          workers.push(worker);
+          worker.onmessage = (event) => handleWorkerMessage(event, i);
+          worker.onerror = (error) => {
+              console.error(`Error in worker:`, error);
+              worker.terminate();
+              URL.revokeObjectURL(workerUrl);
+              reject(new Error(`A worker failed. Subwoofer alignment aborted. Error: ${error.message}`)); // Simplified message
+          };
+          const workerFrequencies = new Float32Array(fixedAnalysisFrequencies);
+          const workerSubMagnitude = new Float32Array(fixedAnalysisSubMagnitude);
+          const workerTargetMagnitude = new Float32Array(fixedAnalysisTargetMagnitude);
+         worker.postMessage({
+              type: 'init',
+              fixedAnalysisFrequencies: workerFrequencies.buffer,
+              fixedAnalysisSubMagnitude: workerSubMagnitude.buffer,
+              fixedAnalysisTargetMagnitude: workerTargetMagnitude.buffer,
+              commonPpo: commonPpo,
+              fixedOverallAnalysisStartFreq: fixedOverallAnalysisStartFreq,
+              lpCutoffCandidates: lpCutoffCandidates_main_thread
+          }, [workerFrequencies.buffer, workerSubMagnitude.buffer, workerTargetMagnitude.buffer]);
+          sendNextBatchToWorker(i);
       }
     });
     lowPassFreq = optimalResult.lowPassFreq;
@@ -2474,23 +2714,39 @@ async function sortBass() {
   for (let i = 0; i < sampleCount; i++) filter[i] = dataView.getFloat32(i * 4, false) * 0.354813398972832 * 10 ** (filterCompensation / 20);
   customFilter[0] = filter;
   console.info('Bass system optimization completed!');}
+  
 async function alignFronts() {
-  const sp1 = 1, sp2 = 2, sp3 = 3, sw1 = nSpeakers + 1;
-  if (addCenter && commandId[3] != "C") {
-    console.warn(`There's no 'Center' speaker to prioritize, user option dismissed!`);
-    addCenter = false;
-  }
-  if (addCenter && (minFreqFR !== minFreqC || maxFreqFR !== maxFreqC)) console.warn(`Front speakers' crossover customization will override center speaker crossover customization!`);
-  const speakerSet = addCenter ? "Front L/C/R" : "Front L/R";
-  const subAmplitudeScalingFactor = addCenter ? 3 : 2;
+  const sp1 = 1, sp2 = 2, sw1 = nSpeakers + 1;
+  let maxSumScore = -Infinity;
+  let minSumScore = Infinity;
   const indicesToCleanInThisContext = [sp1, sp2, sw1];
-  if (addCenter) indicesToCleanInThisContext.push(sp3);
-  let maxSumPower = -Infinity;
-  let minSumPower = Infinity;
   for (const sIdx of indicesToCleanInThisContext) await cleanFilters(sIdx);
   const dB2Amp = dB => Math.pow(10, dB / 20);
   const amp2Db = amp => (amp > 1e-15) ? 20 * Math.log10(amp) : -120;
   const toRad = deg => deg * Math.PI / 180;
+  const unwrap = phaseArray => {
+    // Standard phase unwrapping (returns array, radians)
+    const out = [phaseArray[0]];
+    for (let i = 1; i < phaseArray.length; i++) {
+      let dp = phaseArray[i] - phaseArray[i - 1];
+      while (dp > Math.PI) dp -= 2 * Math.PI;
+      while (dp < -Math.PI) dp += 2 * Math.PI;
+      out.push(out[i - 1] + dp);
+    }
+    return out;
+  };
+  const groupDelay = (phaseArray, freqArray) => {
+    // Simple numerical group delay: -d(phi)/d(omega), freq in Hz, phase in radians
+    const gd = [];
+    for (let i = 1; i < phaseArray.length; i++) {
+      let dPhi = phaseArray[i] - phaseArray[i - 1];
+      let dF = freqArray[i] - freqArray[i - 1];
+      if (dF === 0) gd.push(gd[gd.length - 1] ?? 0);
+      else gd.push(-dPhi / (2 * Math.PI * dF));
+    }
+    gd.unshift(gd[0]); // pad to match length
+    return gd;
+  };
   const ppoFreq = (s, ppo, i) => s * Math.pow(2, i / ppo);
   const ppoIndex = (f, s, ppo) => Math.log2(f / s) * ppo;
   const twoPi = 2 * Math.PI;
@@ -2501,108 +2757,145 @@ async function alignFronts() {
   const inversionConfigs = [{subInverted: false}, {subInverted: true}];
   let apfQValues = [0, 0.5773502692, 0.7071067812, 1.0, 1.414213562];
   if (!noAllpass) apfQValues = [0];
-  console.info(`Brute force searching optimal ${speakerSet} + Sub configuration...`);
-  const optimizationStartFreq = 20;
-  const optimizationEndFreq = 320;
-  let bestOverallSumPower = -Infinity, bestOverallConfig = null;
+  const subAmplitudeScalingFactor = 2;
+  console.info("Brute force searching optimal Front L/R + Sub configuration (with proper acoustic criteria)...");
+  const optimisationStartFreq = 40;
+  const optimisationEndFreq = 120;
+  let bestOverallScore = -Infinity, bestOverallConfig = null;
   const freqResults = [];
   for (const freq of xoCandidates) {
-    let speaker1_postXO = await fetchResponse(sp1, freq, false, true, 0);
-    let speaker2_postXO = await fetchResponse(sp2, freq, false, true, 0);
-    let speaker3_postXO, spk3Complex;
-    if (addCenter) {
-      speaker3_postXO = await fetchResponse(sp3, freq, false, true, 0);
-      spk3Complex = [];
-      for (let i = 0; i < speaker3_postXO.magnitude.length; i++) {
-        const amp = dB2Amp(speaker3_postXO.magnitude[i]);
-        const phase = toRad(speaker3_postXO.phase[i]);
-        spk3Complex.push({real: amp * Math.cos(phase), imag: amp * Math.sin(phase)});
-      }
-    }
-    const spk1Complex = [];
+    let speaker1_postXO, speaker2_postXO;
+    speaker1_postXO = await fetchResponse(sp1, freq, false, true, 0);
+    speaker2_postXO = await fetchResponse(sp2, freq, false, true, 0);
+    // Prepare complex arrays (FRONT-ONLY and combined for later analysis)
+    const spk1Complex = [], spk2Complex = [];
     for (let i = 0; i < speaker1_postXO.magnitude.length; i++) {
       const amp = dB2Amp(speaker1_postXO.magnitude[i]);
       const phase = toRad(speaker1_postXO.phase[i]);
       spk1Complex.push({real: amp * Math.cos(phase), imag: amp * Math.sin(phase)});
     }
-    const spk2Complex = [];
     for (let i = 0; i < speaker2_postXO.magnitude.length; i++) {
       const amp = dB2Amp(speaker2_postXO.magnitude[i]);
       const phase = toRad(speaker2_postXO.phase[i]);
       spk2Complex.push({real: amp * Math.cos(phase), imag: amp * Math.sin(phase)});
     }
     for (const currentQ of apfQValues) {
-      let sub_postXO = await fetchResponse(sw1, freq, true, true, currentQ);
+      let sub_postXO;
+      sub_postXO = await fetchResponse(sw1, freq, true, true, currentQ);
       const subRawAmpPhase = [];
       for (let i = 0; i < sub_postXO.magnitude.length; i++) subRawAmpPhase.push({amp: dB2Amp(sub_postXO.magnitude[i]), phase: toRad(sub_postXO.phase[i])});
-      let bestConfigForFreq = {sumPower: -Infinity};
+      let bestConfigForFreq = {score: -Infinity};
       for (const config of inversionConfigs) {
         for (const ts of delayValues) {
-          let currentSum = 0, validPoints = 0;
+          let scoreSum = 0, validPoints = 0;
+          let ampArray = [], phaseArray = [], freqArray = [], groupDelayArray = [];
+          let frontsAloneAmp = [], frontsAlonePhase = [];
           for (let iSub = 0; iSub < sub_postXO.magnitude.length; iSub++) {
             const f = ppoFreq(sub_postXO.startFreq, sub_postXO.ppo, iSub);
-            if (f < optimizationStartFreq || f > optimizationEndFreq) continue;
+            if (f < optimisationStartFreq || f > optimisationEndFreq) continue;
             const idxSpk1 = Math.min(Math.max(Math.round(ppoIndex(f, speaker1_postXO.startFreq, speaker1_postXO.ppo)), 0), speaker1_postXO.magnitude.length - 1);
             const idxSpk2 = Math.min(Math.max(Math.round(ppoIndex(f, speaker2_postXO.startFreq, speaker2_postXO.ppo)), 0), speaker2_postXO.magnitude.length - 1);
             const spk1 = spk1Complex[idxSpk1];
             const spk2 = spk2Complex[idxSpk2];
-            const spk3 = addCenter 
-              ? spk3Complex[Math.min(Math.max(Math.round(ppoIndex(f, speaker3_postXO.startFreq, speaker3_postXO.ppo)), 0), speaker3_postXO.magnitude.length - 1)] 
-              : { real: 0, imag: 0 };
             const subRaw = subRawAmpPhase[iSub];
             const subAmp_scaled = subRaw.amp * subAmplitudeScalingFactor;
             let adjSubPhase = subRaw.phase + twoPi * ts * f;
             if (config.subInverted) adjSubPhase += Math.PI;
             const subReal = subAmp_scaled * Math.cos(adjSubPhase);
             const subImag = subAmp_scaled * Math.sin(adjSubPhase);
-            const totalReal = spk1.real + spk2.real + spk3.real + subReal;
-            const totalImag = spk1.imag + spk2.imag + spk3.imag + subImag;
-            const lin_amp = Math.sqrt(totalReal * totalReal + totalImag * totalImag);;
-            currentSum += lin_amp;
+            const totalReal = spk1.real + spk2.real + subReal;
+            const totalImag = spk1.imag + spk2.imag + subImag;
+            const lin_amp = Math.sqrt(totalReal * totalReal + totalImag * totalImag);
+            ampArray.push(lin_amp);
+            const sumPhase = Math.atan2(totalImag, totalReal);
+            phaseArray.push(sumPhase);
+            freqArray.push(f);
+            // For phase-coherence: fronts alone (for reference)
+            const frReal = spk1.real + spk2.real;
+            const frImag = spk1.imag + spk2.imag;
+            frontsAloneAmp.push(Math.sqrt(frReal * frReal + frImag * frImag));
+            frontsAlonePhase.push(Math.atan2(frImag, frReal));
             validPoints++;
           }
-          if (validPoints > 0 && currentSum > bestConfigForFreq.sumPower) bestConfigForFreq = {sumPower: currentSum, ts, subInverted: config.subInverted, validPoints, apfQ: currentQ};
+          if (validPoints > 4) {
+            // Unwrap phase, compute group delay
+            const unwrappedPhase = unwrap(phaseArray);
+            const gd = groupDelay(unwrappedPhase, freqArray);
+            // ----- Score calculation -----
+            // 1. Flatness (penalise deviation from mean SPL in 40–120 Hz band)
+            const avgMag = ampArray.reduce((a, b) => a + b, 0) / ampArray.length;
+            const dBArray = ampArray.map(amp2Db);
+            const meanDB = dBArray.reduce((a, b) => a + b, 0) / dBArray.length;
+            const stdDB = Math.sqrt(dBArray.reduce((acc, dB) => acc + Math.pow(dB - meanDB, 2), 0) / dBArray.length);
+            // 2. Phase coherence: mean absolute phase difference between sum and fronts-alone
+            let absPhaseDiffSum = 0;
+            for (let i = 0; i < phaseArray.length; i++) {
+              let dPhi = Math.abs(phaseArray[i] - frontsAlonePhase[i]);
+              dPhi = ((dPhi + Math.PI) % (2 * Math.PI)) - Math.PI; // Wrap to -pi..pi
+              absPhaseDiffSum += Math.abs(dPhi);
+            }
+            const meanPhaseErrorDeg = (absPhaseDiffSum / phaseArray.length) * (180 / Math.PI);
+            // 3. Group delay: penalise variance, penalise large positive excursions
+            const meanGD = gd.reduce((a, b) => a + b, 0) / gd.length;
+            const stdGD = Math.sqrt(gd.reduce((acc, g) => acc + Math.pow(g - meanGD, 2), 0) / gd.length);
+            // 4. Loudness, but *downweighted* (we're not idiots)
+            const loudnessScore = meanDB;
+            // 5. Weighted sum: tweak weights as you please
+            const FLATNESS_WEIGHT = -5, PHASE_WEIGHT = -0.7, GD_WEIGHT = -1.0, LOUDNESS_WEIGHT = 0.25;
+            const thisScore = (
+                LOUDNESS_WEIGHT * loudnessScore +
+                FLATNESS_WEIGHT * stdDB +
+                PHASE_WEIGHT * meanPhaseErrorDeg +
+                GD_WEIGHT * stdGD
+            );
+            // For debug, you may want to log: dBArray, gd, meanPhaseErrorDeg, stdDB, stdGD, loudnessScore, thisScore
+            if (thisScore > bestConfigForFreq.score)
+              bestConfigForFreq = {
+                score: thisScore, ts, subInverted: config.subInverted,
+                validPoints, apfQ: currentQ,
+                debug: {stdDB, meanPhaseErrorDeg, stdGD, loudnessScore}
+              };
+          }
         }
       }
-      if (bestConfigForFreq.sumPower > -Infinity && bestConfigForFreq.validPoints > 0) {
-        const avgPower = bestConfigForFreq.sumPower / bestConfigForFreq.validPoints;
-        const overallMagEstimate = amp2Db(avgPower);
-        freqResults.push({freq: freq, overallMagEstimate: overallMagEstimate, config: bestConfigForFreq});
-        if (bestConfigForFreq.sumPower > bestOverallSumPower) {
-          bestOverallSumPower = bestConfigForFreq.sumPower;
+      if (bestConfigForFreq.score > -Infinity && bestConfigForFreq.validPoints > 0) {
+        freqResults.push({freq: freq, score: bestConfigForFreq.score, config: bestConfigForFreq});
+        if (bestConfigForFreq.score > bestOverallScore) {
+          bestOverallScore = bestConfigForFreq.score;
           bestOverallConfig = {freq: freq, ts: bestConfigForFreq.ts, subInverted: bestConfigForFreq.subInverted, apfQ: bestConfigForFreq.apfQ};
         }
-        maxSumPower = Math.max(maxSumPower, bestConfigForFreq.sumPower);
-        minSumPower = Math.min(minSumPower, bestConfigForFreq.sumPower);
+        maxSumScore = Math.max(maxSumScore, bestConfigForFreq.score);
+        minSumScore = Math.min(minSumScore, bestConfigForFreq.score);
       } else {
-         console.warn(`No valid points found for crossover frequency ${freq} Hz within the optimization range.`);
+         console.warn(`No valid points found for crossover frequency ${freq} Hz within the optimisation range.`);
       }
     }
   }
-  let maxOverallMagEstimate = -Infinity;
-  for (const result of freqResults) {if (result.overallMagEstimate > maxOverallMagEstimate) maxOverallMagEstimate = result.overallMagEstimate;}
-  console.log(`${speakerSet} + subwoofer(s) crossover performance analysis:`);
+  let maxOverallScore = -Infinity;
+  for (const result of freqResults) if (result.score > maxOverallScore) maxOverallScore = result.score;
+  console.log("Front speakers + subwoofer(s) crossover performance analysis (acoustic score):");
   const bestResultsByFreq = new Map();
   for (const currentResult of freqResults) {
     const existingBest = bestResultsByFreq.get(currentResult.freq);
-    if (!existingBest || currentResult.overallMagEstimate > existingBest.overallMagEstimate) bestResultsByFreq.set(currentResult.freq, currentResult);
+    if (!existingBest || currentResult.score > existingBest.score) bestResultsByFreq.set(currentResult.freq, currentResult);
   }
   const uniqueBestResults = Array.from(bestResultsByFreq.values());
   uniqueBestResults.sort((a, b) => a.freq - b.freq);
   for (const result of uniqueBestResults) {
-    noAllpass ? console.log(`${result.freq}Hz => Estimated SPL: ${result.overallMagEstimate.toFixed(2)}dB | Applied delay: ${(result.config.ts * 1000).toFixed(2)}ms | Sub inverted: ${result.config.subInverted} | Allpass filter Q: ${(result.config.apfQ).toFixed(4)}`) :
-    console.log(`${result.freq}Hz => Estimated SPL: ${result.overallMagEstimate.toFixed(2)}dB | Applied delay: ${(result.config.ts * 1000).toFixed(2)}ms | Sub inverted: ${result.config.subInverted}`);
+    noAllpass ?
+      console.log(`${result.freq}Hz => Score: ${result.score.toFixed(2)} | Delay: ${(result.config.ts * 1000).toFixed(2)}ms | Sub inverted: ${result.config.subInverted} | APF Q: ${(result.config.apfQ).toFixed(4)} | [Flatness: ${result.config.debug.stdDB.toFixed(2)} dB, PhaseErr: ${result.config.debug.meanPhaseErrorDeg.toFixed(1)}°, GD: ${result.config.debug.stdGD.toFixed(3)}ms, Loud: ${result.config.debug.loudnessScore.toFixed(1)} dB]`)
+    :
+      console.log(`${result.freq}Hz => Score: ${result.score.toFixed(2)} | Delay: ${(result.config.ts * 1000).toFixed(2)}ms | Sub inverted: ${result.config.subInverted} | [Flatness: ${result.config.debug.stdDB.toFixed(2)} dB, PhaseErr: ${result.config.debug.meanPhaseErrorDeg.toFixed(1)}°, GD: ${result.config.debug.stdGD.toFixed(3)}ms, Loud: ${result.config.debug.loudnessScore.toFixed(1)} dB]`);
   }
   if (uniqueBestResults.length > 0) {
     let overallBestResult = uniqueBestResults[0];
-    for (let i = 1; i < uniqueBestResults.length; i++) {if (uniqueBestResults[i].overallMagEstimate > overallBestResult.overallMagEstimate) overallBestResult = uniqueBestResults[i];}
+    for (let i = 1; i < uniqueBestResults.length; i++) if (uniqueBestResults[i].score > overallBestResult.score) overallBestResult = uniqueBestResults[i];
   }
   if (bestOverallConfig) {
-    noAllpass ? console.infoBold(`Best ${speakerSet} + subwoofer configuration => Xover: ${bestOverallConfig.freq}Hz | Applied delay: ${(bestOverallConfig.ts * 1000).toFixed(4)}ms | Subwoofer inverted: ${bestOverallConfig.subInverted}| Allpass filter Q: ${(bestOverallConfig.apfQ).toFixed(4)}`) :
-    console.infoBold(`Best ${speakerSet} + subwoofer configuration => Xover: ${bestOverallConfig.freq}Hz | Applied delay: ${(bestOverallConfig.ts * 1000).toFixed(4)}ms | Subwoofer inverted: ${bestOverallConfig.subInverted}`);
+    noAllpass ? console.infoBold(`Best front speakers + subwoofer configuration => Xover: ${bestOverallConfig.freq}Hz | Delay: ${(bestOverallConfig.ts * 1000).toFixed(4)}ms | Sub inverted: ${bestOverallConfig.subInverted}| APF Q: ${(bestOverallConfig.apfQ).toFixed(4)}`) :
+    console.infoBold(`Best front speakers + subwoofer configuration => Xover: ${bestOverallConfig.freq}Hz | Delay: ${(bestOverallConfig.ts * 1000).toFixed(4)}ms | Sub inverted: ${bestOverallConfig.subInverted}`);
     customCrossover[sp1] = bestOverallConfig.freq;
     customCrossover[sp2] = bestOverallConfig.freq;
-    if (addCenter) customCrossover[sp3] = bestOverallConfig.freq;
     subAllPassQ = bestOverallConfig.apfQ;
     await postNext('Offset t=0', nSpeakers + 1, { offset: bestOverallConfig.ts, unit: "seconds" });
     let minDist = Infinity;
@@ -2625,16 +2918,13 @@ async function alignFronts() {
       if (customDistance[i] > maxDist) maxDist = customDistance[i];
       console.log(`${commandId[i]}: ${customDistance[i].toFixed(2)}m (${(customDistance[i] * 3.28084).toFixed(2)}ft)`);
     }
-    if ((maxDist - minDist) > 6) console.warn(`A1 Evo used 'extended' maximum speaker distance difference limit in your optimized set up (6m vs 7.35m). DO NOT view or edit distance settings in the receiver's setup menu as it may reset them back to defaults, disrupting calibration - you may check them using the WEB UI!`);
+    if ((maxDist - minDist) > 6) console.warn(`A1 Evo used 'extended' maximum speaker distance difference limit in your optimised setup (6m vs 7.35m). DO NOT view or edit distance settings in the receiver's setup menu as it may reset them back to defaults, disrupting calibration - you may check them using the WEB UI!`);
     if (customInvert[nSpeakers + 1]) await postSafe(`${baseUrl}/${nSpeakers + 1}/command`, { command: "Invert" }, "Invert completed");
   } else {
-    console.error(`Failed to find optimal configuration for ${speakerSet} speakers.`);
-    customCrossover[sp1] = 80;
-    customCrossover[sp2] = 80;
-    if (addCenter) customCrossover[sp3] = 80;
+    console.error("Failed to find optimal configuration for front speakers.");
+    customCrossover[sp1] = customCrossover[2] = 80;
   }
-  const remainingSpeakersStartIdx = addCenter ? 4 : 3;
-  for (let i = remainingSpeakersStartIdx; i <= nSpeakers;) {
+  for (let i = 3; i <= nSpeakers;) {
     const isPair = !["C", "CH", "SB", "TS"].includes(commandId[i]) && !(commandId[i] === "SBL" && !commandId.includes("SBR"));
     await optimizeSpeakers(i, isPair ? i + 1 : null);
     i += isPair ? 2 : 1;
@@ -2642,11 +2932,15 @@ async function alignFronts() {
   console.infoBold("Final crossover and polarity settings:");
   for (let i = 1; i <= nSpeakers; i++) console.log(`${commandId[i]}: ${customCrossover[i]}Hz, polarity inverted? ${customInvert[i]}`);
   for (let i = nSpeakers + 1; i <= nSpeakers + nSubs; i++) console.log(`${commandId[i]}, polarity inverted? ${customInvert[i]}`);
-  if (customInvert.some(Boolean)) console.warn("Polarity inversion(s) will be applied automatically by A1 Evo Acoustica!");}
+  if (customInvert.some(Boolean)) console.warn("Polarity inversion(s) will be applied automatically by A1 Evo Acoustica!");
+}
+
+  
 function freqToIndex(freq, startFreq, ppo, totalPoints) {
     if (freq < startFreq) return 0;
     const index = ppo * Math.log2(freq / startFreq);
     return Math.min(Math.round(index), totalPoints - 1);}
+	
 function b64ToFloat32ArrayBE(base64) {
   const binaryStr = atob(base64);
   const len = binaryStr.length;
@@ -2705,6 +2999,7 @@ async function fetchResponse(index, xoFreq, isSub = false, uPPO = false, allpass
         magnitude: b64ToFloat32ArrayBE(magnitude)
     };
   }}
+  
 async function optimizeSpeakers(sp1, sp2 = null) {
   let skipAllpassLogging = false;
   const isLimitedAVR = !xt32 && !xt;
@@ -2765,10 +3060,10 @@ async function optimizeSpeakers(sp1, sp2 = null) {
     let min, max;
     if (isCenter) {
       min = minFreqC ?? 40;
-      max = maxFreqC ?? 250;
+      max = maxFreqC ?? 120;
     } else {
       min = minFreq ?? 40;
-      max = maxFreq ?? 250;
+      max = maxFreq ?? 120;
       if (isDolby) min = Math.max(min, 100);
     }
     return f >= min && f <= max;
@@ -2910,6 +3205,9 @@ async function optimizeSpeakers(sp1, sp2 = null) {
     allpassQ[sp2] = bestWorstq2;
     console.infoBold(`  >> Assigned Crossover: ${customCrossover[sp2]}Hz${!skipAllpassLogging ? `, Right allpass Q: ${allpassQ[sp2]?.toFixed(4)}` : ''} to ${commandId[sp2]}`);
   }}
+
+
+  
 async function refResults(){
   console.info(`Generating magnitude and phase correction filters for normal listening mode [Flat]...`);
   for (let i = nSpeakers + 1; i <= nSpeakers + nSubs; i++) {if (customInvert[i]) {customFilter[i] = customFilter[0].map((value) => -value);} else {customFilter[i] = customFilter[0];}}
@@ -2950,6 +3248,8 @@ async function refFilter(index, orgIndex) {
   await new Promise(resolve => setTimeout(resolve, speedDelay / 4));
   await postSafe(`http://localhost:4735/eq/house-curve`, targetCurvePath, 'House curve set');
   await new Promise(resolve => setTimeout(resolve, speedDelay));
+  await postSafe(`http://localhost:4735/eq/match-target-settings`, {startFrequency: 10, endFrequency: 20000, individualMaxBoostdB: 3, overallMaxBoostdB: 0, flatnessTargetdB: 1, varyQAbove200Hz: true, allowLowShelf: false, allowHighShelf: true, highShelfMin: -3, highShelfMax: 3}, 'Update processed');
+  await new Promise(resolve => setTimeout(resolve, speedDelay / 10));
   await postSafe(`http://localhost:4735/eq/match-target-settings`, {startFrequency: (!xt32 && !xt) ? 375 : 200, endFrequency: 12500, individualMaxBoostdB: 3, overallMaxBoostdB: 0, flatnessTargetdB: 1, varyQAbove200Hz: true, allowLowShelf: false, allowHighShelf: true, highShelfMin: -3, highShelfMax: 3}, 'Update processed');
   await new Promise(resolve => setTimeout(resolve, speedDelay / 4));
   await postSafe(`${baseUrl}/${mpIndex + 3}/room-curve-settings`, {addRoomCurve: false}, 'Update processed');
@@ -3028,6 +3328,7 @@ async function generateRoll(freq, index, isSub = false) {
   const rollResponse = await postNext('Generate predicted measurement', index);
   await new Promise((resolve) => setTimeout(resolve, speedDelay));
   return parseInt(Object.keys(rollResponse.results)[0]);}
+  
 async function multipleSubs(indices) {
   function generatePermutations(arr) {
     const permutations = [];
@@ -3046,6 +3347,7 @@ async function multipleSubs(indices) {
   await postNext('Smooth', indices, {smoothing: "Psy"});
   await new Promise(resolve => setTimeout(resolve, speedDelay));
   const subShift = await postNext('Align SPL', indices, {frequencyHz: 70.71067812, spanOctaves: 3.6538562, targetdB: 'average'});
+  //const subShift = await postNext('Align SPL', indices, {frequencyHz: 60, spanOctaves: 3, targetdB: 'average'});
   await postNext('Smooth', indices, {smoothing: "None"});
   await new Promise(resolve => setTimeout(resolve, speedDelay));
   let maxBoost = -Infinity, minBoost = Infinity;
@@ -3125,7 +3427,7 @@ async function processSubConfig(subIndices) {
   let indexA = subIndices[0];
   for (let i = 1; i < subIndices.length; i++) {
     const indexB = subIndices[i];
-    const result = await optimizeSubs(indexA, indexB, maxNegativeDelay, maxPositiveDelay, 250);
+    const result = await optimizeSubs(indexA, indexB, maxNegativeDelay, maxPositiveDelay, 120);
     const {bestDelay, bestInvert} = result;
     finalScore = result.finalScore;
     const msDelay = bestDelay;
@@ -3160,94 +3462,184 @@ async function processSubConfig(subIndices) {
     indexA = newIndex;
   }
   return {newIndex, finalScore, mSecs: mSec.slice(-subIndices.length), isInverteds: customInvert.slice(-subIndices.length)};}
+  
 async function optimizeSubs(i1, i2, timeShiftMinMs, timeShiftMaxMs, fMax) {
   async function fetchSub(index) {
-    const subResponse = await fetch(`${baseUrl}/${index}/frequency-response?unit=SPL&smoothing=1%2F48&ppo=96`);
+    const subResponse = await fetch(`${baseUrl}/${index}/frequency-response?unit=SPL&smoothing=None`);
     const response = await subResponse.json();
-    const {startFreq, freqStep, ppo, phase, magnitude} = response;
+    const { startFreq, freqStep, phase, magnitude } = response;
+
+    const base64ToFloat32ArrayBigEndian = (base64) => {
+      const binaryStr = atob(base64);
+      const len = binaryStr.length;
+      const buffer = new ArrayBuffer(len);
+      const uint8 = new Uint8Array(buffer);
+      for (let i = 0; i < len; i++) uint8[i] = binaryStr.charCodeAt(i);
+
+      const swappedBuffer = new ArrayBuffer(len);
+      const src = new Uint8Array(buffer);
+      const dst = new Uint8Array(swappedBuffer);
+      for (let i = 0; i < len; i += 4) {
+        dst[i]     = src[i + 3];
+        dst[i + 1] = src[i + 2];
+        dst[i + 2] = src[i + 1];
+        dst[i + 3] = src[i];
+      }
+      return new Float32Array(swappedBuffer);
+    };
+
     return {
       startFreq,
       freqStep,
-      ppo,
-      phase: b64ToFloat32ArrayBE(phase),
-      magnitude: b64ToFloat32ArrayBE(magnitude)
+      phase: base64ToFloat32ArrayBigEndian(phase),
+      magnitude: base64ToFloat32ArrayBigEndian(magnitude)
     };
   }
+
   const dB2Amp = dB => Math.pow(10, dB / 20);
-  const toRadians = deg => deg * Math.PI / 180;
   const twoPi = 2 * Math.PI;
-  const log2 = Math.log2;
-  const pow = Math.pow;
-  const cos = Math.cos;
-  const sin = Math.sin;
-  const sqrt = Math.sqrt;
+
+  function unwrapPhaseRad(phaseArray) {
+    const unwrapped = new Float32Array(phaseArray.length);
+    unwrapped[0] = phaseArray[0];
+    for (let i = 1; i < phaseArray.length; i++) {
+      let delta = phaseArray[i] - phaseArray[i - 1];
+      if (delta > Math.PI) delta -= twoPi;
+      else if (delta < -Math.PI) delta += twoPi;
+      unwrapped[i] = unwrapped[i - 1] + delta;
+    }
+    return unwrapped;
+  }
+
   const sub1 = await fetchSub(i1);
   const sub2 = await fetchSub(i2);
-  const {startFreq, freqStep, ppo, magnitude: mag1, phase: ph1} = sub1;
-  const {magnitude: mag2, phase: ph2} = sub2;
-  const lowerFreq = 16;
-  const upperFreq = fMax;
-  const octaves = log2(upperFreq / lowerFreq);
-  const numPoints = Math.floor(octaves * ppo) + 1;
-  const dataIndices = [];
-  const logStartFreq = log2(startFreq);
-  for (let i = 0; i < numPoints; i++) {
-    const freq = lowerFreq * pow(2, i / ppo);
-    const idx = Math.round((log2(freq) - logStartFreq) * ppo);
-    if (idx >= 0 && idx < mag1.length && idx < mag2.length) {
-      const sub1Amp = dB2Amp(mag1[idx]);
-      const sub1PhaseRad = toRadians(ph1[idx]);
-      const sub2Amp = dB2Amp(mag2[idx]);
-      const sub2PhaseRad = toRadians(ph2[idx]);
-      dataIndices.push({
-        freqValue: freq,
-        sub1Real: sub1Amp * cos(sub1PhaseRad),
-        sub1Imag: sub1Amp * sin(sub1PhaseRad),
-        sub2Amp: sub2Amp,
-        sub2PhaseRad: sub2PhaseRad,
-        freqTimeFactor: twoPi * freq
-      });
+  sub1.phase = unwrapPhaseRad(sub1.phase);
+  sub2.phase = unwrapPhaseRad(sub2.phase);
+
+  const { startFreq, freqStep, magnitude: mag1, phase: ph1 } = sub1;
+  const { magnitude: mag2, phase: ph2 } = sub2;
+
+  const lowerFreq = 20;
+  const upperFreq = Math.min(fMax, 250);
+  const startIndex = Math.max(0, Math.ceil((lowerFreq - startFreq) / freqStep));
+  const endIndex = Math.min(mag1.length - 1, Math.floor((upperFreq - startFreq) / freqStep));
+  const nIndices = endIndex - startIndex + 1;
+
+  const data = new Array(nIndices);
+  for (let i = 0; i < nIndices; i++) {
+    const idx = startIndex + i;
+    const f = startFreq + idx * freqStep;
+    const amp1 = dB2Amp(mag1[idx]);
+    const sub1Real = amp1 * Math.cos(ph1[idx]);
+    const sub1Imag = amp1 * Math.sin(ph1[idx]);
+    const sub2Amp = dB2Amp(mag2[idx]);
+    const sub2Phase = ph2[idx];
+    data[i] = { f, sub1Real, sub1Imag, sub2Amp, sub2Phase };
+  }
+
+  const step = 0.0000333333333333;
+  const tMin = timeShiftMinMs / 1000;
+  const tMax = timeShiftMaxMs / 1000;
+  const tsValues = [];
+  for (let ts = tMin; ts <= tMax; ts += step) tsValues.push(ts);
+
+  // Tuning weights
+  const flatWeight = 1;
+  const nullSuppressionWeight = 4.0;
+  const nullThreshold = 0.05;
+  const groupDelayPenaltyWeight = 0.75;
+  const phaseAlignmentPenaltyWeight = 0.8;  // new
+
+  let bestConfig = { score: -Infinity, timeShift: 0, inverted: false };
+
+  for (let inv = 0; inv < 2; inv++) {
+    
+	const phaseOffset = inv === 0 ? 0 : Math.PI; // Clearer
+	const isInverted = inv === 0 ? false : true; // Yeah okay I know. STFU. I like explicit statements, sue me.
+    const scores = [];
+
+    for (const ts of tsValues) {
+      const pf = twoPi * ts;
+      let magnitudeSum = 0;
+      let magnitudeSqSum = 0;
+      let nullPenalty = 0;
+      let groupDelayPenalty = 0;
+      let vectorReal = 0, vectorImag = 0;
+      let phaseDiffSum = 0;
+
+      for (let k = 0; k < data.length; k++) {
+        const d = data[k];
+		const shiftedPhase = d.sub2Phase + pf * d.f + phaseOffset; 
+        const r2 = d.sub2Amp * Math.cos(shiftedPhase);
+        const i2 = d.sub2Amp * Math.sin(shiftedPhase);
+        const rSum = d.sub1Real + r2;
+        const iSum = d.sub1Imag + i2;
+        const mag = Math.hypot(rSum, iSum);
+
+        magnitudeSum += mag;
+        magnitudeSqSum += mag * mag;
+        if (mag < nullThreshold) nullPenalty += 1;
+
+        if (k > 0) {
+          const dPrev = data[k - 1];
+          const Δϕ1 = d.sub2Phase - dPrev.sub2Phase;
+          const Δf = d.f - dPrev.f;
+          const ph1Curr = Math.atan2(d.sub1Imag, d.sub1Real);
+          const ph1Prev = Math.atan2(dPrev.sub1Imag, dPrev.sub1Real);
+          const Δϕ2 = ph1Curr - ph1Prev;
+          const g1 = -Δϕ1 / Δf;
+          const g2 = -Δϕ2 / Δf;
+          groupDelayPenalty += Math.abs(g1 - g2);
+        }
+
+        const ph1 = Math.atan2(d.sub1Imag, d.sub1Real);
+        let phaseDiff = shiftedPhase - ph1;
+        while (phaseDiff > Math.PI) phaseDiff -= twoPi; //Is this necessary here? Actually yes. It is. You do the same for Neurons firing phase differences
+        while (phaseDiff < -Math.PI) phaseDiff += twoPi;
+        phaseDiffSum += Math.abs(phaseDiff);
+
+        vectorReal += rSum;
+        vectorImag += iSum;
+      }
+
+      const meanMag = magnitudeSum / data.length;
+      const stdMag = Math.sqrt(magnitudeSqSum / data.length - meanMag * meanMag);
+      const coherence = Math.sqrt(vectorReal ** 2 + vectorImag ** 2) / (magnitudeSum + 1e-9);
+      const meanAbsPhaseDiff = phaseDiffSum / data.length;
+
+      const totalScore =
+        flatWeight * meanMag
+        - 0.7 * stdMag
+        - nullSuppressionWeight * nullPenalty
+        - groupDelayPenaltyWeight * groupDelayPenalty
+        - phaseAlignmentPenaltyWeight * meanAbsPhaseDiff
+        + 0.9 * coherence;
+
+      scores.push({ isInverted, ts, score: totalScore });
+    }
+
+    const best = scores.reduce((best, curr) => curr.score > best.score ? curr : best, scores[0]);
+    if (best.score > bestConfig.score) {
+      bestConfig = {
+        score: best.score,
+        timeShift: best.ts, // This is what we were messing up. It should have been best.ts instead of ts
+		inverted: inv === 0//best.isInverted
+      };
     }
   }
-  const timeShiftParams = {min: timeShiftMinMs / 1000, max: timeShiftMaxMs / 1000, step: 0.0000333333333333};
-  const numTimeSteps = Math.floor((timeShiftParams.max - timeShiftParams.min) / timeShiftParams.step) + 1;
-  let bestConfig = {sumPower: -Infinity};
-  const dataLength = dataIndices.length;
-  for (let inversion = 0; inversion < 2; inversion++) {
-    const phaseOffset = inversion === 1 ? Math.PI : 0;
-    let bestForInversion = {sumPower: -Infinity, timeShift: 0};
-    for (let i = 0; i < numTimeSteps; i++) {
-      const ts = timeShiftParams.min + i * timeShiftParams.step;
-      let sumPower = 0;
-      for (let j = 0; j < dataLength; j++) {
-        const d = dataIndices[j];
-        const phase = d.sub2PhaseRad + d.freqTimeFactor * ts + phaseOffset;
-        const sub2Real = d.sub2Amp * cos(phase);
-        const sub2Imag = d.sub2Amp * sin(phase);
-        const realSum = d.sub1Real + sub2Real;
-        const imagSum = d.sub1Imag + sub2Imag;
-        sumPower += sqrt(realSum * realSum + imagSum * imagSum);
-      }
-      if (sumPower > bestForInversion.sumPower) {
-        bestForInversion = {
-          sub2Inverted: inversion === 1,
-          timeShift: ts,
-          sumPower: sumPower
-        };
-      }
-    }
-    if (bestForInversion.sumPower > bestConfig.sumPower) {
-      bestConfig = bestForInversion;
-    }
-  }
-  const avgPower = bestConfig.sumPower / dataLength;
-  const overallMag = 20 * Math.log10(avgPower);
-  console.infoUpdate(`Analysed permutation: Required time delay: ${(bestConfig.timeShift * 1000).toFixed(3)} ms, inversion required: ${bestConfig.sub2Inverted}, estimated linear amplitude: ${overallMag.toFixed(2)} dB`);
-  return {
-    bestDelay: bestConfig.timeShift,
-    bestInvert: bestConfig.sub2Inverted,
-    finalScore: overallMag
-  };}
+
+  const finalScore = bestConfig.score;
+  const bestDelay = bestConfig.timeShift;
+  const bestInvert = bestConfig.inverted; 
+
+  console.infoUpdate(
+    `Final inter-sub alignment: Delay = ${(bestDelay * 1000).toFixed(3)} ms | ` +
+    `Inversion = ${bestInvert} | Score = ${finalScore.toFixed(6)}`
+  );
+
+  return { bestDelay, bestInvert, finalScore };
+}
+
 async function cleanFilters(index) {
   const filters = Array.from({length: 22}, (_, i) => ({index: i + 1, type: "None", enabled: true, isAuto: true}));
   await postSafe(`${baseUrl}/${index}/filters`, {filters}, "Filters set");
@@ -3586,7 +3978,6 @@ document.addEventListener('DOMContentLoaded', () => {
   UpdateMinFreqC(minFreqC, true);
   UpdateMaxFreqC(maxFreqC, true);
   UpdateenableInversion(enableInversion, false);
-  UpdateaddCenter(addCenter, false);
   UpdateisWeakBass(enableWeakBass, false);
   UpdateAllPass(noAllpass, false);
   document.getElementById('bassFillSlider').addEventListener('input', function (e) {
@@ -3632,9 +4023,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   document.getElementById('disableSpeakerInversion').addEventListener('change', function (event) {
     UpdateenableInversion(event.target.checked, false);
-  });
-  document.getElementById('prioCenter').addEventListener('change', function (event) {
-    UpdateaddCenter(event.target.checked, false);
   });
   document.getElementById('weakBass').addEventListener('change', function (event) {
     UpdateisWeakBass(event.target.checked, false);
@@ -3818,9 +4206,9 @@ function readContents() {
                           "X1400H", "X1500H", "X2400H", "X2500H", "X3400H", "X3500H", "X4300H", "X4400H", "X4500H", "X6300H", "X6400H", "X6500H", "AV7703",
                           "AV7704", "AV7705", "NR1608", "NR1609", "SR5012", "SR5013", "SR6012", "SR6013", "SR7011", "SR7012", "SR7013", "SR8012" ];
   const griffinLite = ["X8500H", "AV8805", "X6700H", "X4700H", "AV7706", "SR8015", "SR7015", " AV 10", "VR-A1H", "VC-A1H", "X3800H", "X4800H", "EMA 30", "EMA 40", "EMA 50", "X6800H", "R-A10H", "C-A10H"];
-  const baseFreq = [40, 60, 80, 90, 100, 110, 120, 150, 200, 250];
+  const baseFreq = [40, 60, 80, 90, 100, 110, 120, 150];
   const extraFreq = 180;
-  const modelName = jsonContent.targetModelName.toUpperCase();
+  const modelName = jsonContent.targetModelName;
   console.info(`Target AV receiver model: ${modelName}`);
   if (jsonContent.enMultEQType != 2) {
     xt32 = false;
@@ -3844,13 +4232,13 @@ function readContents() {
     const startIndex = freqIndex.indexOf(targetFreq);
     freqIndex = freqIndex.slice(startIndex);
   }
-  customMinFreq = freqIndex.filter(freq => freq < 180);
+  customMinFreq = freqIndex.filter(freq => freq < 120);
   customMaxFreq = freqIndex.filter(freq => freq >= 40);
-  customMinFreqFR = freqIndex.filter(freq => freq < 180);
+  customMinFreqFR = freqIndex.filter(freq => freq < 120);
   customMaxFreqFR = freqIndex.filter(freq => freq >= 40);
-	customMinFreqC = freqIndex.filter(freq => freq < 180);
+	customMinFreqC = freqIndex.filter(freq => freq < 120);
   customMaxFreqC = freqIndex.filter(freq => freq >= 40);
-  distFL = 2.75;
+   distFL = 3.14;
   console.info(`Model specific speed of sound setting: ${sOs} m/s`);
   console.info(`Model is capable of setting 180Hz crossover: ${!no180}`);
   console.info(`Model has Cirrus Logic DSP chip: ${isCirrusLogic}`);};
@@ -3984,11 +4372,6 @@ function UpdateenableInversion(disableInv, syncToggle) {
   if (syncToggle) {
     document.getElementById('disableSpeakerInversion').checked = disableInv;
   }}
-function UpdateaddCenter(centerAdd, syncToggle) {
-addCenter = centerAdd;
-if (syncToggle) {
-  document.getElementById('prioCenter').checked = centerAdd;
-}}
 async function updateAPI(endpoint, bodyValue) {
   const url = `http://localhost:4735/application/${endpoint}`;
   await fetch(url, {
