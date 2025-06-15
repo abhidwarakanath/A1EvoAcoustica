@@ -2182,7 +2182,7 @@ async function setVolumeLevels({ postFilter = false } = {}) {
     await postNext('Add SPL offset', indices[i], {offset: -differences[i]});
     customLevel[i + 1] = Math.round(-differences[i] * 2) / 2;
     customMargin[i + 1] = (-differences[i]) - customLevel[i + 1];
-    console.log(`${commandId[i + 1]} --> Applied volume adjustment: ${-differences[i] > 0 ? '+' : -differences[i] === 0 ? '' : '-'}${Math.abs(-differences[i]).toFixed(5)}dB -> via AVR volume settings: ${customLevel[i + 1] > 0 ? '+' : customLevel[i + 1] === 0 ? '' : '-'}${Math.abs(customLevel[i + 1]).toFixed(1)}dB -> via filters hack: ${customMargin[i + 1].toFixed(5)}dB`);
+    console.log(`${commandId[i + 1]} --> Applied volume adjustment: ${-differences[i] > 0 ? '+' : -differences[i] === 0 ? '' : '-'}${Math.abs(-differences[i]).toFixed(5)}dB -> via AVR volume settings: ${customLevel[i + 1] > 0 ? '+' : customLevel[i + 1] === 0 ? '' : '-'}${Math.abs(customLevel[i + 1]).toFixed(1)}dB`);
   }
   await postNext('Add SPL offset', nSpeakers + 2, {offset: -differences.at(-1)});
   await postNext('Calculate target level', nSpeakers + 2);
@@ -3213,6 +3213,10 @@ async function refResults(){
   for (let i = nSpeakers + 1; i <= nSpeakers + nSubs; i++) {if (customInvert[i]) {customFilter[i] = customFilter[0].map((value) => -value);} else {customFilter[i] = customFilter[0];}}
   for (let i = 1; i <= nSpeakers; i++) {
     console.info(`${commandId[i]}`);
+	 //const filtStart = (i <= 2) ? 16 : customCrossover[i];
+    // Both always use filtStart; for subs this just makes it flat for FL/FR
+    //const filteredSpeaker = await generateRoll(filtStart, i);
+    //const filteredSub = await generateRoll(filtStart, nSpeakers + 4, true);
     const filteredSub = await generateRoll(customCrossover[i], nSpeakers + 4, true);
     const filteredSpeaker = await generateRoll(customCrossover[i], i)
     const spResponse = await postNext("Vector sum", [filteredSpeaker, filteredSub]);
@@ -3231,13 +3235,16 @@ async function refResults(){
   }
   await postNext('Smooth', ind, {smoothing: "Var"});
   await new Promise((resolve) => setTimeout(resolve, speedDelay / 4));}
+  
 async function refFilter(index, orgIndex) {
   let sampleCount = xt32 ? 16321 : (xt ? 512 : 128);
   const rightWindowWidth = sampleCount / 48;
   await postNext('Smooth', index, {smoothing: "Var"});
   const mp = await postNext('Minimum phase version', index, {'include cal': true, 'append lf tail': false, 'append hf tail': false, 'frequency warping': false, 'replicate data': true});
   mpIndex = parseInt(Object.keys(mp.results)[0], 10);
-  await postNext('Arithmetic', [nSpeakers + 2, mpIndex], {function: "A / B", maxGain: 0, lowerLimit: (!xt32 && !xt) ? 375 : customCrossover[orgIndex] - (customCrossover[orgIndex] / 20), upperLimit: (!xt32 && !xt) ? 500 : 252});
+  //const filtStart = (index <= 2) ? 16 : customCrossover[index];
+  //await postNext('Arithmetic', [nSpeakers + 2, mpIndex], {function: "A / B", maxGain: 0, lowerLimit: (!xt32 && !xt) ? 375 : filtStart, upperLimit: (!xt32 && !xt) ? 500 : 520});
+  await postNext('Arithmetic', [nSpeakers + 2, mpIndex], {function: "A / B", maxGain: 0, lowerLimit: (!xt32 && !xt) ? 375 : customCrossover[index] - (customCrossover[index] / 20), upperLimit: (!xt32 && !xt) ? 500 : 252});
   await new Promise(resolve => setTimeout(resolve, speedDelay));
   await postNext('Smooth', mpIndex + 1, {smoothing: "None"});
   await postNext('Minimum phase version', mpIndex + 1, {'include cal': true, 'append lf tail': false, 'append hf tail': false, 'frequency warping': false, 'replicate data': true});
@@ -3250,7 +3257,7 @@ async function refFilter(index, orgIndex) {
   await new Promise(resolve => setTimeout(resolve, speedDelay));
   await postSafe(`http://localhost:4735/eq/match-target-settings`, {startFrequency: 10, endFrequency: 20000, individualMaxBoostdB: 3, overallMaxBoostdB: 0, flatnessTargetdB: 1, varyQAbove200Hz: true, allowLowShelf: false, allowHighShelf: true, highShelfMin: -3, highShelfMax: 3}, 'Update processed');
   await new Promise(resolve => setTimeout(resolve, speedDelay / 10));
-  await postSafe(`http://localhost:4735/eq/match-target-settings`, {startFrequency: (!xt32 && !xt) ? 375 : 200, endFrequency: 12500, individualMaxBoostdB: 3, overallMaxBoostdB: 0, flatnessTargetdB: 1, varyQAbove200Hz: true, allowLowShelf: false, allowHighShelf: true, highShelfMin: -3, highShelfMax: 3}, 'Update processed');
+  await postSafe(`http://localhost:4735/eq/match-target-settings`, {startFrequency: (!xt32 && !xt) ? 375 : 520, endFrequency: 12500, individualMaxBoostdB: 3, overallMaxBoostdB: 0, flatnessTargetdB: 1, varyQAbove200Hz: true, allowLowShelf: false, allowHighShelf: true, highShelfMin: -3, highShelfMax: 3}, 'Update processed');
   await new Promise(resolve => setTimeout(resolve, speedDelay / 4));
   await postSafe(`${baseUrl}/${mpIndex + 3}/room-curve-settings`, {addRoomCurve: false}, 'Update processed');
   await new Promise(resolve => setTimeout(resolve, speedDelay / 4));
@@ -3310,6 +3317,7 @@ async function refFilter(index, orgIndex) {
   customFilter[orgIndex] = filter;
   await postDelete(mpIndex + 1); await postDelete(mpIndex); await postDelete(index);
   return ;}
+  
 async function generateRoll(freq, index, isSub = false) {
   if (freq === 0) {
     await postSafe(`${baseUrl}/${index}/command`, {command: 'Response copy'}, 'Completed');
@@ -3427,7 +3435,7 @@ async function processSubConfig(subIndices) {
   let indexA = subIndices[0];
   for (let i = 1; i < subIndices.length; i++) {
     const indexB = subIndices[i];
-    const result = await optimizeSubs(indexA, indexB, maxNegativeDelay, maxPositiveDelay, 150);
+    const result = await optimizeSubs(indexA, indexB, maxNegativeDelay, maxPositiveDelay, 250);
     const {bestDelay, bestInvert} = result;
     finalScore = result.finalScore;
     const msDelay = bestDelay;
@@ -3622,8 +3630,8 @@ async function optimizeSubs(i1, i2, timeShiftMinMs, timeShiftMaxMs, fMax) {
     if (best.score > bestConfig.score) {
       bestConfig = {
         score: best.score,
-        timeShift: best.ts, // 
-		inverted: inv === 0//best.isInverted
+        timeShift: 0.0021,//best.ts, 
+		inverted: false//inv === 1
       };
     }
   }
