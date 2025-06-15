@@ -6,9 +6,9 @@
 
 Differences - 
 
-1. The raw imported IRs from Audyssey are now windowed with Tukey windows, and a frequency-dependent windowing. This provides a more robust estimation of the actual frequency response of the speaker. No other downstream windowing is changed or affected.
+1. The raw imported IRs from Audyssey are now windowed with Tukey windows, and a frequency-dependent windowing. This provides a more robust estimation of the actual frequency response of the speaker, and avoids artifacts from rectangular windows (such as Gibbs phenomenon, ringing, etc), and respects psychacoustic integration windows. No other downstream windowing is changed or affected.
 2. C is back to not being treated with L/R
-3. Phase unwrapping is performed for all analysis steps
+3. Phase unwrapping is performed for all analysis steps. Phase unwrapping is of paramount importance. This is one of the factors that can lead to weird delays for the subwoofers, and thus weird distances (Sub distance of 0.00m is not correct, even if it means "fired first").
 4. During inter-sub alignment, flatness of response in the 20-120Hz band, group delay and phase cohererence are optimised along with SPL
 5. The same optimisations are also applied for the sub-L/R integration
 6. During these alignments, fMax is reduced to 150 instead of 250 Hz. This specifically assumes reference grade subwoofers.
