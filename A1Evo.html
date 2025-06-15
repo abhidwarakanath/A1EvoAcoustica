@@ -2838,7 +2838,7 @@ async function alignFronts() {
             // 3. Group delay: penalise variance, penalise large positive excursions
             const meanGD = gd.reduce((a, b) => a + b, 0) / gd.length;
             const stdGD = Math.sqrt(gd.reduce((acc, g) => acc + Math.pow(g - meanGD, 2), 0) / gd.length);
-            // 4. Loudness, but *downweighted* (we're not idiots)
+            // 4. Loudness, but *downweighted* (we're not Thar drivers)
             const loudnessScore = meanDB;
             // 5. Weighted sum: tweak weights as you please
             const FLATNESS_WEIGHT = -5, PHASE_WEIGHT = -0.7, GD_WEIGHT = -1.0, LOUDNESS_WEIGHT = 0.25;
