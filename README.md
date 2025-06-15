@@ -2,6 +2,8 @@
 
 This edit is specifically for multi-sub configurations. 
 
+** IF YOU DON'T LIKE THE RESULTS AFTER THE FIRST PASS, LOAD THE PRE-PROCESSED MEASUREMENTS, IN ALL SPL WINDOW, APPLY NO MORE THAN 1/24th SMOOTHING, SAVE, AND RELOAD IT AND RE-RUN THE OPTIMISATION. I'VE FOUND THAT THIS EQUALISES THE VOLUMES MUCH BETTER **
+
 Differences - 
 
 1. The raw imported IRs from Audyssey are now windowed with Tukey windows, and a frequency-dependent windowing. This provides a more robust estimation of the actual frequency response of the speaker. No other downstream windowing is changed or affected.
